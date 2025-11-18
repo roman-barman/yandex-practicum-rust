@@ -65,7 +65,10 @@ mod tests {
 
     #[test]
     fn test_long_transaction_reference_number() {
-        let result = TransactionReferenceNumber::try_from("12345678901234567890");
+        let result = TransactionReferenceNumber::try_from(
+            "1".repeat(TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH + 1)
+                .as_str(),
+        );
         assert_eq!(result, Err(TransactionReferenceNumberParseError::TooLong));
     }
 
