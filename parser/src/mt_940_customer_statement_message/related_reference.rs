@@ -26,6 +26,12 @@ impl TryFrom<&str> for RelatedReference {
     }
 }
 
+impl Display for RelatedReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Related reference: {}", self.0)
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub(crate) enum RelatedReferenceParseError {
     Empty,
@@ -59,6 +65,10 @@ mod tests {
     fn test_empty_related_reference() {
         let result = RelatedReference::try_from("");
         assert_eq!(result, Err(RelatedReferenceParseError::Empty));
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Related reference cannot be empty"
+        );
     }
 
     #[test]
@@ -66,6 +76,13 @@ mod tests {
         let result =
             RelatedReference::try_from("1".repeat(RELATED_REFERENCE_MAX_LENGTH + 1).as_str());
         assert_eq!(result, Err(RelatedReferenceParseError::TooLong));
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            format!(
+                "Related reference exceeds {} character length",
+                RELATED_REFERENCE_MAX_LENGTH
+            )
+        );
     }
 
     #[test]
@@ -78,11 +95,16 @@ mod tests {
 
         let result = RelatedReference::try_from("12//345678901");
         assert_eq!(result, Err(RelatedReferenceParseError::InvalidFormat));
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Related reference has invalid format"
+        );
     }
 
     #[test]
     fn test_valid_related_reference() {
         let result = RelatedReference::try_from("1234567890");
         assert_eq!(result, Ok(RelatedReference("1234567890".to_string())));
+        assert_eq!(result.unwrap().to_string(), "Related reference: 1234567890");
     }
 }

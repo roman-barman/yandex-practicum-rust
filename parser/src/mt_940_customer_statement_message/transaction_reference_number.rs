@@ -26,6 +26,12 @@ impl TryFrom<&str> for TransactionReferenceNumber {
     }
 }
 
+impl Display for TransactionReferenceNumber {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Transaction reference number: {}", self.0)
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub(crate) enum TransactionReferenceNumberParseError {
     Empty,
@@ -61,6 +67,10 @@ mod tests {
     fn test_empty_transaction_reference_number() {
         let result = TransactionReferenceNumber::try_from("");
         assert_eq!(result, Err(TransactionReferenceNumberParseError::Empty));
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Transaction reference number cannot be empty"
+        );
     }
 
     #[test]
@@ -70,6 +80,13 @@ mod tests {
                 .as_str(),
         );
         assert_eq!(result, Err(TransactionReferenceNumberParseError::TooLong));
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            format!(
+                "Transaction reference number exceeds {} character length",
+                TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH
+            )
+        );
     }
 
     #[test]
@@ -91,6 +108,10 @@ mod tests {
             result,
             Err(TransactionReferenceNumberParseError::InvalidFormat)
         );
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Transaction reference number has invalid format"
+        );
     }
 
     #[test]
@@ -99,6 +120,10 @@ mod tests {
         assert_eq!(
             result,
             Ok(TransactionReferenceNumber("1234567890".to_string()))
+        );
+        assert_eq!(
+            result.unwrap().to_string(),
+            "Transaction reference number: 1234567890"
         );
     }
 }
