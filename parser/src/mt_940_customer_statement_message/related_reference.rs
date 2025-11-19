@@ -4,7 +4,7 @@ use std::fmt::Display;
 const RELATED_REFERENCE_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct RelatedReference(String);
+pub(super) struct RelatedReference(String);
 
 impl TryFrom<&str> for RelatedReference {
     type Error = RelatedReferenceParseError;
@@ -33,7 +33,7 @@ impl Display for RelatedReference {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum RelatedReferenceParseError {
+pub(super) enum RelatedReferenceParseError {
     Empty,
     TooLong,
     InvalidFormat,

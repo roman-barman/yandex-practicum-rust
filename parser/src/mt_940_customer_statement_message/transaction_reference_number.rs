@@ -4,7 +4,7 @@ use std::fmt::Display;
 const TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct TransactionReferenceNumber(String);
+pub(super) struct TransactionReferenceNumber(String);
 
 impl TryFrom<&str> for TransactionReferenceNumber {
     type Error = TransactionReferenceNumberParseError;
@@ -33,7 +33,7 @@ impl Display for TransactionReferenceNumber {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum TransactionReferenceNumberParseError {
+pub(super) enum TransactionReferenceNumberParseError {
     Empty,
     TooLong,
     InvalidFormat,
