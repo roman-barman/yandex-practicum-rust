@@ -1,9 +1,11 @@
 mod account_identification;
 mod related_reference;
+mod statement_sequence_number;
 mod transaction_reference_number;
 
 use crate::mt_940_customer_statement_message::account_identification::*;
 use crate::mt_940_customer_statement_message::related_reference::*;
+use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
@@ -12,8 +14,7 @@ struct Mt940CustomerStatementMessage {
     transaction_reference_number: TransactionReferenceNumber,
     related_reference: Option<RelatedReference>,
     account_identification: AccountIdentification,
-    statement_no: String,
-    sequence_number: String,
+    statement_sequence_no: StatementSequenceNumber,
     opening_balance: OpeningBalance,
     statement_lines: Option<Vec<StatementLine>>,
     closing_balance: ClosingBalance,
