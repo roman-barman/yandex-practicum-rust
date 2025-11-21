@@ -22,7 +22,7 @@ impl TryFrom<&str> for TransactionReferenceNumber {
             return Err(TransactionReferenceNumberParseError::InvalidFormat);
         }
 
-        Ok(TransactionReferenceNumber(value.to_string()))
+        Ok(Self(value.to_string()))
     }
 }
 

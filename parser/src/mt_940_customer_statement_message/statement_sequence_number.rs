@@ -32,7 +32,7 @@ impl TryFrom<&str> for StatementSequenceNumber {
             .map_err(|_| StatementSequenceNumberParseError::InvalidStatementNumberFormat)?;
 
         if split.len() == 1 {
-            return Ok(StatementSequenceNumber {
+            return Ok(Self {
                 statement_number,
                 sequence_number: None,
             });
@@ -45,7 +45,7 @@ impl TryFrom<&str> for StatementSequenceNumber {
         let sequence_number = sequence_number
             .parse::<u16>()
             .map_err(|_| StatementSequenceNumberParseError::InvalidSequenceNumberFormat)?;
-        Ok(StatementSequenceNumber {
+        Ok(Self {
             statement_number,
             sequence_number: Some(sequence_number),
         })

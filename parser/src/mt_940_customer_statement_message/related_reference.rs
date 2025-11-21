@@ -22,7 +22,7 @@ impl TryFrom<&str> for RelatedReference {
             return Err(RelatedReferenceParseError::InvalidFormat);
         }
 
-        Ok(RelatedReference(value.to_string()))
+        Ok(Self(value.to_string()))
     }
 }
 
