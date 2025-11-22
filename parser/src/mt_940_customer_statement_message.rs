@@ -1,19 +1,15 @@
 mod account_identification;
 mod amount;
-mod credit_debit_mark;
-mod currency_code;
+mod balance;
 mod date;
-mod opening_balance;
 mod related_reference;
 mod statement_sequence_number;
 mod transaction_reference_number;
 
 use crate::mt_940_customer_statement_message::account_identification::*;
 use crate::mt_940_customer_statement_message::amount::*;
-use crate::mt_940_customer_statement_message::credit_debit_mark::*;
-use crate::mt_940_customer_statement_message::currency_code::*;
+use crate::mt_940_customer_statement_message::balance::*;
 use crate::mt_940_customer_statement_message::date::*;
-use crate::mt_940_customer_statement_message::opening_balance::*;
 use crate::mt_940_customer_statement_message::related_reference::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
@@ -23,11 +19,11 @@ struct Mt940CustomerStatementMessage {
     related_reference: Option<RelatedReference>,
     account_identification: AccountIdentification,
     statement_sequence_no: StatementSequenceNumber,
-    opening_balance: OpeningBalance,
+    opening_balance: Balance,
     statement_lines: Option<Vec<StatementLine>>,
-    closing_balance: ClosingBalance,
-    closing_available_balance: Option<ClosingAvailableBalance>,
-    forward_available_balance: Option<ForwardAvailableBalance>,
+    closing_balance: Balance,
+    closing_available_balance: Option<Balance>,
+    forward_available_balance: Option<Balance>,
     information_to_account_owner: Option<Vec<String>>,
 }
 
@@ -49,26 +45,4 @@ enum StatementLineMark {
     Debit,
     ReversalOfCredit,
     ReversalOfDebit,
-}
-
-struct ClosingBalance {
-    is_intermediate: bool,
-    debit_credit_mark: CreditDebitMark,
-    date: Date,
-    currency_code: CurrencyCode,
-    amount: Amount,
-}
-
-struct ClosingAvailableBalance {
-    debit_credit_mark: CreditDebitMark,
-    date: Date,
-    currency_code: CurrencyCode,
-    amount: Amount,
-}
-
-struct ForwardAvailableBalance {
-    debit_credit_mark: CreditDebitMark,
-    date: Date,
-    currency_code: CurrencyCode,
-    amount: Amount,
 }
