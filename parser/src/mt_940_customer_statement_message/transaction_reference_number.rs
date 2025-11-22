@@ -28,7 +28,7 @@ impl TryFrom<&str> for TransactionReferenceNumber {
 
 impl Display for TransactionReferenceNumber {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Transaction reference number: {}", self.0)
+        write!(f, "{}", self.0)
     }
 }
 
@@ -121,9 +121,6 @@ mod tests {
             result,
             Ok(TransactionReferenceNumber("1234567890".to_string()))
         );
-        assert_eq!(
-            result.unwrap().to_string(),
-            "Transaction reference number: 1234567890"
-        );
+        assert_eq!(result.unwrap().to_string(), "1234567890");
     }
 }

@@ -55,11 +55,11 @@ impl TryFrom<&str> for StatementSequenceNumber {
 impl Display for StatementSequenceNumber {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.sequence_number.is_none() {
-            write!(f, "Statement number: {}", self.statement_number)
+            write!(f, "{}", self.statement_number)
         } else {
             write!(
                 f,
-                "Statement number: {}, Sequence number: {}",
+                "{}/{}",
                 self.statement_number,
                 self.sequence_number.unwrap()
             )
@@ -203,10 +203,7 @@ mod tests {
                 sequence_number: Some(2)
             })
         );
-        assert_eq!(
-            result.unwrap().to_string(),
-            "Statement number: 12345, Sequence number: 2"
-        );
+        assert_eq!(result.unwrap().to_string(), "12345/2");
 
         let result = StatementSequenceNumber::try_from("12345");
         assert_eq!(
@@ -216,7 +213,7 @@ mod tests {
                 sequence_number: None
             })
         );
-        assert_eq!(result.unwrap().to_string(), "Statement number: 12345");
+        assert_eq!(result.unwrap().to_string(), "12345");
 
         let result = StatementSequenceNumber::try_from("001/002");
         assert_eq!(
@@ -226,9 +223,6 @@ mod tests {
                 sequence_number: Some(2)
             })
         );
-        assert_eq!(
-            result.unwrap().to_string(),
-            "Statement number: 1, Sequence number: 2"
-        );
+        assert_eq!(result.unwrap().to_string(), "1/2");
     }
 }

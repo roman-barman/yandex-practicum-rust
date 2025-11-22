@@ -28,7 +28,7 @@ impl TryFrom<&str> for RelatedReference {
 
 impl Display for RelatedReference {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Related reference: {}", self.0)
+        write!(f, "{}", self.0)
     }
 }
 
@@ -105,6 +105,6 @@ mod tests {
     fn test_valid_related_reference() {
         let result = RelatedReference::try_from("1234567890");
         assert_eq!(result, Ok(RelatedReference("1234567890".to_string())));
-        assert_eq!(result.unwrap().to_string(), "Related reference: 1234567890");
+        assert_eq!(result.unwrap().to_string(), "1234567890");
     }
 }
