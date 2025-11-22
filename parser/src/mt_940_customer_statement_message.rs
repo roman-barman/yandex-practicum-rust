@@ -1,14 +1,22 @@
 mod account_identification;
+mod amount;
+mod credit_debit_mark;
+mod currency_code;
+mod date;
+mod opening_balance;
 mod related_reference;
 mod statement_sequence_number;
 mod transaction_reference_number;
 
 use crate::mt_940_customer_statement_message::account_identification::*;
+use crate::mt_940_customer_statement_message::amount::*;
+use crate::mt_940_customer_statement_message::credit_debit_mark::*;
+use crate::mt_940_customer_statement_message::currency_code::*;
+use crate::mt_940_customer_statement_message::date::*;
+use crate::mt_940_customer_statement_message::opening_balance::*;
 use crate::mt_940_customer_statement_message::related_reference::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
-use chrono::NaiveDate;
-use rust_decimal::Decimal;
 
 struct Mt940CustomerStatementMessage {
     transaction_reference_number: TransactionReferenceNumber,
@@ -23,25 +31,12 @@ struct Mt940CustomerStatementMessage {
     information_to_account_owner: Option<Vec<String>>,
 }
 
-struct OpeningBalance {
-    is_intermediate: bool,
-    debit_credit_mark: CreditDebitMark,
-    date: NaiveDate,
-    currency_code: String,
-    amount: Decimal,
-}
-
-enum CreditDebitMark {
-    Credit,
-    Debit,
-}
-
 struct StatementLine {
-    value_date: NaiveDate,
-    entry_date: Option<NaiveDate>,
+    value_date: Date,
+    entry_date: Option<Date>,
     debit_credit_mark: StatementLineMark,
     funds_code: Option<char>,
-    amount: Decimal,
+    amount: Amount,
     transaction_type_identification_code: String,
     account_owner_ref: String,
     bank_ref: Option<String>,
@@ -59,21 +54,21 @@ enum StatementLineMark {
 struct ClosingBalance {
     is_intermediate: bool,
     debit_credit_mark: CreditDebitMark,
-    date: NaiveDate,
-    currency_code: String,
-    amount: Decimal,
+    date: Date,
+    currency_code: CurrencyCode,
+    amount: Amount,
 }
 
 struct ClosingAvailableBalance {
     debit_credit_mark: CreditDebitMark,
-    date: NaiveDate,
-    currency_code: String,
-    amount: Decimal,
+    date: Date,
+    currency_code: CurrencyCode,
+    amount: Amount,
 }
 
 struct ForwardAvailableBalance {
     debit_credit_mark: CreditDebitMark,
-    date: NaiveDate,
-    currency_code: String,
-    amount: Decimal,
+    date: Date,
+    currency_code: CurrencyCode,
+    amount: Amount,
 }
