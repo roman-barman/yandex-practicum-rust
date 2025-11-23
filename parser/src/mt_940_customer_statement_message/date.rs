@@ -1,15 +1,19 @@
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use std::error::Error;
 use std::fmt::Display;
 
-const DATE_LENGTH: usize = 6;
+pub(super) const DATE_LENGTH: usize = 6;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct Date(NaiveDate);
 
 impl Date {
-    pub fn new(date: NaiveDate) -> Self {
+    pub(super) fn new(date: NaiveDate) -> Self {
         Self(date)
+    }
+
+    pub(super) fn ymd_date(&self) -> (i32, u32, u32) {
+        (self.0.year(), self.0.month(), self.0.day())
     }
 }
 
