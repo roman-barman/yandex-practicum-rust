@@ -12,6 +12,7 @@ use chrono::NaiveDate;
 use std::any::Any;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::num::ParseIntError;
 
 mod account_owner_ref;
 mod bank_ref;
@@ -302,12 +303,6 @@ impl PartialEq for StatementLineParseError {
     }
 }
 
-impl<T: Error + 'static> From<T> for StatementLineParseError {
-    fn from(value: T) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
 impl Display for StatementLineParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -321,6 +316,62 @@ impl Display for StatementLineParseError {
         }
     }
 }
+
+impl From<DateParseError> for StatementLineParseError {
+    fn from(value: DateParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<CreditDebitMarkParseError> for StatementLineParseError {
+    fn from(value: CreditDebitMarkParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<TransactionTypeParseError> for StatementLineParseError {
+    fn from(value: TransactionTypeParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<AmountParseError> for StatementLineParseError {
+    fn from(value: AmountParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<FundsCodeParseError> for StatementLineParseError {
+    fn from(value: FundsCodeParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<AccountOwnerRefParseError> for StatementLineParseError {
+    fn from(value: AccountOwnerRefParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<BankRefParseError> for StatementLineParseError {
+    fn from(value: BankRefParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<IdentificationCodeParseError> for StatementLineParseError {
+    fn from(value: IdentificationCodeParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<ParseIntError> for StatementLineParseError {
+    fn from(value: ParseIntError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl Error for StatementLineParseError {}
 
 #[cfg(test)]
 mod tests {

@@ -84,8 +84,26 @@ impl Display for BalanceParseError {
     }
 }
 
-impl<T: Error + 'static> From<T> for BalanceParseError {
-    fn from(value: T) -> Self {
+impl From<CreditDebitMarkParseError> for BalanceParseError {
+    fn from(value: CreditDebitMarkParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<CurrencyCodeParseError> for BalanceParseError {
+    fn from(value: CurrencyCodeParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<DateParseError> for BalanceParseError {
+    fn from(value: DateParseError) -> Self {
+        Self::InvalidFormat(Some(Box::new(value)))
+    }
+}
+
+impl From<AmountParseError> for BalanceParseError {
+    fn from(value: AmountParseError) -> Self {
         Self::InvalidFormat(Some(Box::new(value)))
     }
 }
@@ -109,6 +127,8 @@ impl PartialEq for BalanceParseError {
         }
     }
 }
+
+impl Error for BalanceParseError {}
 
 #[cfg(test)]
 mod tests {
