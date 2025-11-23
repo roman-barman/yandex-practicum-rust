@@ -22,9 +22,11 @@ impl TryFrom<&str> for Date {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = value.trim();
-
+        if value.is_empty() {
+            return Err(DateParseError::Empty);
+        }
         if value.len() != DATE_LENGTH {
-            return Err(DateParseError::InvalidLength);
+            return Err(DateParseError::InvalidFormat);
         }
 
         let year = value
@@ -62,17 +64,17 @@ impl Display for Date {
 
 #[derive(Debug, PartialEq)]
 pub(super) enum DateParseError {
-    InvalidLength,
+    Empty,
     InvalidFormat,
     InvalidValue,
 }
 
-impl std::fmt::Display for DateParseError {
+impl Display for DateParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            DateParseError::Empty => write!(f, "Date cannot be empty"),
             DateParseError::InvalidFormat => write!(f, "Invalid date format"),
             DateParseError::InvalidValue => write!(f, "Invalid date"),
-            DateParseError::InvalidLength => write!(f, "Invalid date length"),
         }
     }
 }
@@ -84,14 +86,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_invalid_date_length() {
-        let result = Date::try_from("20211301");
-        assert_eq!(result, Err(DateParseError::InvalidLength));
-        assert_eq!(result.unwrap_err().to_string(), "Invalid date length");
+    fn test_empty_date() {
+        let result = Date::try_from("");
+        assert_eq!(result, Err(DateParseError::Empty));
+        assert_eq!(result.unwrap_err().to_string(), "Date cannot be empty");
     }
 
     #[test]
     fn test_invalid_date_format() {
+        let result = Date::try_from("20211301");
+        assert_eq!(result, Err(DateParseError::InvalidFormat));
+        assert_eq!(result.unwrap_err().to_string(), "Invalid date format");
+
         let result = Date::try_from("2o1130");
         assert_eq!(result, Err(DateParseError::InvalidFormat));
         assert_eq!(result.unwrap_err().to_string(), "Invalid date format");

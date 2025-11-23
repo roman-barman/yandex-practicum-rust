@@ -9,9 +9,6 @@ use std::any::Any;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-const BALANCE_MAX_LENGTH: usize = 25;
-const BALANCE_MIN_LENGTH: usize = 12;
-
 #[derive(Debug, PartialEq)]
 pub(super) struct Balance {
     debit_credit_mark: CreditDebitMark,
@@ -26,12 +23,6 @@ impl TryFrom<&str> for Balance {
         let value = value.trim();
         if value.is_empty() {
             return Err(BalanceParseError::Empty);
-        }
-        if value.len() < BALANCE_MIN_LENGTH {
-            return Err(BalanceParseError::InvalidFormat(None));
-        }
-        if value.len() > BALANCE_MAX_LENGTH {
-            return Err(BalanceParseError::TooLong);
         }
 
         let debit_credit_mark = CreditDebitMark::try_from(&value.chars().nth(0).unwrap())?;
@@ -61,7 +52,6 @@ impl Display for Balance {
 #[derive(Debug)]
 pub(super) enum BalanceParseError {
     Empty,
-    TooLong,
     InvalidFormat(Option<Box<dyn Error>>),
 }
 
@@ -69,11 +59,6 @@ impl Display for BalanceParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             BalanceParseError::Empty => write!(f, "Opening balance is empty"),
-            BalanceParseError::TooLong => write!(
-                f,
-                "Opening balance exceeds {} character length",
-                BALANCE_MAX_LENGTH
-            ),
             BalanceParseError::InvalidFormat(None) => {
                 write!(f, "Opening balance has invalid format")
             }
@@ -112,7 +97,6 @@ impl PartialEq for BalanceParseError {
     fn eq(&self, other: &Self) -> bool {
         match self {
             BalanceParseError::Empty => matches!(other, BalanceParseError::Empty),
-            BalanceParseError::TooLong => matches!(other, BalanceParseError::TooLong),
             BalanceParseError::InvalidFormat(None) => {
                 matches!(other, BalanceParseError::InvalidFormat(None))
             }
@@ -139,29 +123,6 @@ mod tests {
         let result = Balance::try_from("");
         assert_eq!(result, Err(BalanceParseError::Empty));
         assert_eq!(result.unwrap_err().to_string(), "Opening balance is empty");
-    }
-
-    #[test]
-    fn test_opening_balance_too_long() {
-        let result = Balance::try_from("1".repeat(BALANCE_MAX_LENGTH + 1).as_str());
-        assert_eq!(result, Err(BalanceParseError::TooLong));
-        assert_eq!(
-            result.unwrap_err().to_string(),
-            format!(
-                "Opening balance exceeds {} character length",
-                BALANCE_MAX_LENGTH
-            )
-        );
-    }
-
-    #[test]
-    fn test_opening_balance_invalid_format() {
-        let result = Balance::try_from("invalid");
-        assert_eq!(result, Err(BalanceParseError::InvalidFormat(None)));
-        assert_eq!(
-            result.unwrap_err().to_string(),
-            "Opening balance has invalid format"
-        );
     }
 
     #[test]

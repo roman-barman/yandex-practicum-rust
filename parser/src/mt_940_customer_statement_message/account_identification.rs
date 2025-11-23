@@ -40,7 +40,7 @@ impl Display for AccountIdentificationParseError {
             }
             AccountIdentificationParseError::TooLong => write!(
                 f,
-                "Account identification exceeds maximum length of {} characters",
+                "Account identification cannot be longer than {} characters",
                 ACCOUNT_IDENTIFICATION_MAX_LENGTH
             ),
         }
@@ -72,7 +72,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Account identification exceeds maximum length of {} characters",
+                "Account identification cannot be longer than {} characters",
                 ACCOUNT_IDENTIFICATION_MAX_LENGTH
             )
         );

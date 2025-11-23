@@ -47,7 +47,7 @@ impl Display for TransactionReferenceNumberParseError {
             }
             TransactionReferenceNumberParseError::TooLong => write!(
                 f,
-                "Transaction reference number exceeds {} character length",
+                "Transaction reference number cannot be longer than {} characters",
                 TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH
             ),
             TransactionReferenceNumberParseError::InvalidFormat => {
@@ -83,7 +83,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Transaction reference number exceeds {} character length",
+                "Transaction reference number cannot be longer than {} characters",
                 TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH
             )
         );

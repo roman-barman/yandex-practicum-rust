@@ -88,7 +88,7 @@ impl Display for StatementSequenceNumberParseError {
             }
             StatementSequenceNumberParseError::StatementNumberTooLong => write!(
                 f,
-                "Statement number exceeds {} character length",
+                "Statement number cannot be longer than {} characters",
                 STATEMENT_NUMBER_MAX_LENGTH
             ),
             StatementSequenceNumberParseError::InvalidStatementNumberFormat => {
@@ -96,7 +96,7 @@ impl Display for StatementSequenceNumberParseError {
             }
             StatementSequenceNumberParseError::SequenceNumberTooLong => write!(
                 f,
-                "Sequence number exceeds {} character length",
+                "Sequence number cannot be longer than {} characters",
                 SEQUENCE_NUMBER_MAX_LENGTH
             ),
             StatementSequenceNumberParseError::InvalidSequenceNumberFormat => {
@@ -145,7 +145,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Statement number exceeds {} character length",
+                "Statement number cannot be longer than {} characters",
                 STATEMENT_NUMBER_MAX_LENGTH
             )
         );
@@ -174,7 +174,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Sequence number exceeds {} character length",
+                "Sequence number cannot be longer than {} characters",
                 SEQUENCE_NUMBER_MAX_LENGTH
             )
         );

@@ -45,7 +45,7 @@ impl Display for RelatedReferenceParseError {
             RelatedReferenceParseError::Empty => write!(f, "Related reference cannot be empty"),
             RelatedReferenceParseError::TooLong => write!(
                 f,
-                "Related reference exceeds {} character length",
+                "Related reference cannot be longer than {} characters",
                 RELATED_REFERENCE_MAX_LENGTH
             ),
             RelatedReferenceParseError::InvalidFormat => {
@@ -79,7 +79,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Related reference exceeds {} character length",
+                "Related reference cannot be longer than {} characters",
                 RELATED_REFERENCE_MAX_LENGTH
             )
         );

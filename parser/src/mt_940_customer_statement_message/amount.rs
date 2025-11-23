@@ -55,7 +55,7 @@ impl Display for AmountParseError {
             AmountParseError::Empty => write!(f, "Amount cannot be empty"),
             AmountParseError::TooLong => write!(
                 f,
-                "Amount exceeds maximum length of {} characters",
+                "Amount cannot be longer than {} characters",
                 AMOUNT_MAX_LENGTH
             ),
             AmountParseError::InvalidFormat => write!(f, "Invalid amount format"),
@@ -83,7 +83,7 @@ mod tests {
         assert_eq!(
             result.unwrap_err().to_string(),
             format!(
-                "Amount exceeds maximum length of {} characters",
+                "Amount cannot be longer than {} characters",
                 AMOUNT_MAX_LENGTH
             )
         );
