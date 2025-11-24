@@ -102,12 +102,11 @@ impl PartialEq for BalanceParseError {
             }
             BalanceParseError::InvalidFormat(Some(err1)) => {
                 if let BalanceParseError::InvalidFormat(Some(err2)) = other {
-                    err1.type_id() == err2.type_id()
+                    (*err1).type_id() == (*err2).type_id()
                 } else {
                     false
                 }
             }
-            _ => false,
         }
     }
 }

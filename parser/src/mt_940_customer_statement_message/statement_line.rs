@@ -1,11 +1,11 @@
 use crate::mt_940_customer_statement_message::amount::*;
 use crate::mt_940_customer_statement_message::date::*;
+use crate::mt_940_customer_statement_message::information_to_account_owner::*;
 use crate::mt_940_customer_statement_message::statement_line::account_owner_ref::*;
 use crate::mt_940_customer_statement_message::statement_line::bank_ref::*;
 use crate::mt_940_customer_statement_message::statement_line::credit_debit_mark::*;
 use crate::mt_940_customer_statement_message::statement_line::funds_code::*;
 use crate::mt_940_customer_statement_message::statement_line::identification_code::*;
-use crate::mt_940_customer_statement_message::statement_line::information_to_account_owner::*;
 use crate::mt_940_customer_statement_message::statement_line::supplementary_details::*;
 use crate::mt_940_customer_statement_message::statement_line::transaction_type::*;
 use chrono::NaiveDate;
@@ -19,8 +19,7 @@ mod bank_ref;
 mod credit_debit_mark;
 mod funds_code;
 mod identification_code;
-mod information_to_account_owner;
-mod supplementary_details;
+pub(crate) mod supplementary_details;
 mod transaction_type;
 const ENTRY_DATE_LENGTH: usize = 4;
 
@@ -36,7 +35,35 @@ pub(super) struct StatementLine {
     account_owner_ref: AccountOwnerRef,
     bank_ref: Option<BankRef>,
     supplementary_details: Option<SupplementaryDetails>,
-    information_to_account_owner: Option<Vec<InformationToAccountOwner>>,
+    information_to_account_owner: Option<InformationToAccountOwner>,
+}
+
+impl StatementLine {
+    pub(super) fn add_supplementary_details(
+        &mut self,
+        value: SupplementaryDetails,
+    ) -> Result<(), StatementLineError> {
+        if self.supplementary_details.is_some() {
+            return Err(StatementLineError::SupplementaryDetailsAlreadySet);
+        }
+        self.supplementary_details = Some(value);
+        Ok(())
+    }
+
+    pub(super) fn add_information_to_account_owner(
+        &mut self,
+        value: InformationToAccountOwner,
+    ) -> Result<(), StatementLineError> {
+        match self.information_to_account_owner {
+            Some(ref mut information_to_account_owner) => {
+                information_to_account_owner.add(value)?;
+            }
+            None => {
+                self.information_to_account_owner = Some(value);
+            }
+        }
+        Ok(())
+    }
 }
 
 impl Display for StatementLine {
@@ -64,10 +91,6 @@ impl Display for StatementLine {
                 f,
                 "- Information to account owner: {}",
                 information_to_account_owner
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect::<Vec<_>>()
-                    .join(" ")
             )
         } else {
             Ok(())
@@ -191,7 +214,7 @@ fn read_funds_code(
     line: &str,
     cursor: &mut usize,
 ) -> Result<Option<FundsCode>, StatementLineParseError> {
-    let funds_code = line.chars().skip(*cursor).next();
+    let funds_code = line.chars().nth(*cursor);
     match funds_code {
         None => Ok(None),
         Some(funds_code) => {
@@ -219,7 +242,7 @@ fn read_transaction_type(
     line: &str,
     cursor: &mut usize,
 ) -> Result<TransactionType, StatementLineParseError> {
-    let transaction_type = line.chars().skip(*cursor).next();
+    let transaction_type = line.chars().nth(*cursor);
     match transaction_type {
         None => Err(StatementLineParseError::InvalidFormat(None)),
         Some(transaction_type) => {
@@ -294,7 +317,7 @@ impl PartialEq for StatementLineParseError {
             }
             StatementLineParseError::InvalidFormat(Some(err1)) => {
                 if let StatementLineParseError::InvalidFormat(Some(err2)) = other {
-                    err1.type_id() == err2.type_id()
+                    (*err1).type_id() == (*err2).type_id()
                 } else {
                     false
                 }
@@ -372,6 +395,35 @@ impl From<ParseIntError> for StatementLineParseError {
 }
 
 impl Error for StatementLineParseError {}
+
+#[derive(Debug, PartialEq)]
+pub(super) enum StatementLineError {
+    SupplementaryDetailsAlreadySet,
+    InformationToAccountOwnerTooLong,
+}
+
+impl From<InformationToAccountOwnerError> for StatementLineError {
+    fn from(value: InformationToAccountOwnerError) -> Self {
+        match value {
+            InformationToAccountOwnerError::TooLong => Self::InformationToAccountOwnerTooLong,
+        }
+    }
+}
+
+impl Display for StatementLineError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            StatementLineError::SupplementaryDetailsAlreadySet => {
+                write!(f, "Supplementary details already set")
+            }
+            StatementLineError::InformationToAccountOwnerTooLong => {
+                write!(f, "Information to account owner too long")
+            }
+        }
+    }
+}
+
+impl Error for StatementLineError {}
 
 #[cfg(test)]
 mod tests {
@@ -568,6 +620,71 @@ mod tests {
         assert_eq!(
             result.unwrap().to_string(),
             "- Value date: 2023-03-01\n- Entry date: 2023-02-28\n- Debit/Credit: Credit\n- Funds code: K\n- Amount: 366336.2\n- Transaction type: Non-SWIFT transfer\n- Identification code: TRF\n- Account owner reference: Arbi/deposit\n- Bank reference: 1323333800\n"
+        );
+    }
+
+    #[test]
+    fn test_add_supplementary_details() {
+        let mut statement_line = StatementLine::try_from(DATA).unwrap();
+        let result = statement_line.add_supplementary_details(
+            SupplementaryDetails::try_from("Test supplementary details").unwrap(),
+        );
+        assert!(result.is_ok());
+        assert_eq!(
+            statement_line.to_string(),
+            "- Value date: 2023-03-01\n- Entry date: 2023-02-28\n- Debit/Credit: Credit\n- Funds code: K\n- Amount: 366336.2\n- Transaction type: Non-SWIFT transfer\n- Identification code: TRF\n- Account owner reference: Arbi/deposit\n- Bank reference: 1323333800\n- Supplementary details: Test supplementary details\n"
+        );
+
+        let result = statement_line.add_supplementary_details(
+            SupplementaryDetails::try_from("Test supplementary details 2").unwrap(),
+        );
+        assert_eq!(
+            result,
+            Err(StatementLineError::SupplementaryDetailsAlreadySet)
+        );
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Supplementary details already set"
+        );
+    }
+
+    #[test]
+    fn test_add_information_to_account_owner() {
+        let mut statement_line = StatementLine::try_from(DATA).unwrap();
+        let _ = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner").unwrap(),
+        );
+        let _ = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 2").unwrap(),
+        );
+        let _ = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 3").unwrap(),
+        );
+        let _ = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 4").unwrap(),
+        );
+        let _ = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 5").unwrap(),
+        );
+        let result = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 6").unwrap(),
+        );
+        assert!(result.is_ok());
+        assert_eq!(
+            statement_line.to_string(),
+            "- Value date: 2023-03-01\n- Entry date: 2023-02-28\n- Debit/Credit: Credit\n- Funds code: K\n- Amount: 366336.2\n- Transaction type: Non-SWIFT transfer\n- Identification code: TRF\n- Account owner reference: Arbi/deposit\n- Bank reference: 1323333800\n- Information to account owner: Test information to account owner Test information to account owner 2 Test information to account owner 3 Test information to account owner 4 Test information to account owner 5 Test information to account owner 6\n"
+        );
+
+        let result = statement_line.add_information_to_account_owner(
+            InformationToAccountOwner::try_from("Test information to account owner 7").unwrap(),
+        );
+        assert_eq!(
+            result,
+            Err(StatementLineError::InformationToAccountOwnerTooLong)
+        );
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Information to account owner too long"
         );
     }
 }

@@ -4,7 +4,7 @@ use std::fmt::Display;
 const SUPPLEMENTARY_DETAILS_MAX_LENGTH: usize = 34;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct SupplementaryDetails(String);
+pub(crate) struct SupplementaryDetails(String);
 
 impl TryFrom<&str> for SupplementaryDetails {
     type Error = SupplementaryDetailsParseError;
@@ -27,7 +27,7 @@ impl Display for SupplementaryDetails {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum SupplementaryDetailsParseError {
+pub(crate) enum SupplementaryDetailsParseError {
     Empty,
     TooLong,
 }

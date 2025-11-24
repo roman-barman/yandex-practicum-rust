@@ -1,1 +1,3 @@
 mod mt_940_customer_statement_message;
+pub use mt_940_customer_statement_message::Mt940CustomerStatementMessage;
+pub use mt_940_customer_statement_message::error::Mt940CustomerStatementMessageReadError;
