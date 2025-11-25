@@ -22,7 +22,7 @@ impl TryFrom<&str> for AccountIdentification {
 
 impl Display for AccountIdentification {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Account identification: {}", self.0)
+        write!(f, "{}", self.0)
     }
 }
 
@@ -84,7 +84,7 @@ mod tests {
         assert_eq!(result, Ok(AccountIdentification("12345DK".to_string())));
         assert_eq!(
             result.unwrap().to_string(),
-            "Account identification: 12345DK"
+            "12345DK"
         );
     }
 }

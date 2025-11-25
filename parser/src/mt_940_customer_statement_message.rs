@@ -66,26 +66,26 @@ impl Display for Mt940CustomerStatementMessage {
             self.statement_sequence_no
         )?;
         writeln!(f, "Opening balance")?;
-        writeln!(f, "{}", self.opening_balance)?;
+        write!(f, "{}", self.opening_balance)?;
         if let Some(ref statement_lines) = self.statement_lines {
             for statement_line in statement_lines {
                 writeln!(f, "Statement line")?;
-                writeln!(f, "{}", statement_line)?;
+                write!(f, "{}", statement_line)?;
             }
         }
         writeln!(f, "Closing balance")?;
-        writeln!(f, "{}", self.closing_balance)?;
+        write!(f, "{}", self.closing_balance)?;
         if let Some(ref closing_available_balance) = self.closing_available_balance {
             writeln!(f, "Closing available balance")?;
-            writeln!(f, "{}", closing_available_balance)?;
+            write!(f, "{}", closing_available_balance)?;
         }
         if let Some(ref forward_available_balance) = self.forward_available_balance {
             writeln!(f, "Forward available balance")?;
-            writeln!(f, "{}", forward_available_balance)?;
+            write!(f, "{}", forward_available_balance)?;
         }
         if let Some(ref information_to_account_owner) = self.information_to_account_owner {
             writeln!(f, "Information to account owner")?;
-            writeln!(f, "{}", information_to_account_owner)?;
+            write!(f, "{}", information_to_account_owner)?;
         }
         Ok(())
     }
