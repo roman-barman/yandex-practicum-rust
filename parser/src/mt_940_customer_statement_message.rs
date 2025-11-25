@@ -18,6 +18,7 @@ use crate::mt_940_customer_statement_message::statement_line::supplementary_deta
 use crate::mt_940_customer_statement_message::statement_line::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
+use std::fmt::{Display, Formatter};
 use std::io::{BufRead, BufReader, Read};
 
 const TRANSACTION_REFERENCE_NUMBER_TAG: &str = ":20:";
@@ -46,6 +47,48 @@ pub struct Mt940CustomerStatementMessage {
     closing_available_balance: Option<Balance>,
     forward_available_balance: Option<Balance>,
     information_to_account_owner: Option<InformationToAccountOwner>,
+}
+
+impl Display for Mt940CustomerStatementMessage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        writeln!(
+            f,
+            "Transaction reference number: {}",
+            self.transaction_reference_number
+        )?;
+        if let Some(ref related_reference) = self.related_reference {
+            writeln!(f, "Related reference: {}", related_reference)?;
+        }
+        writeln!(f, "Account identification: {}", self.account_identification)?;
+        writeln!(
+            f,
+            "Statement sequence number: {}",
+            self.statement_sequence_no
+        )?;
+        writeln!(f, "Opening balance")?;
+        writeln!(f, "{}", self.opening_balance)?;
+        if let Some(ref statement_lines) = self.statement_lines {
+            for statement_line in statement_lines {
+                writeln!(f, "Statement line")?;
+                writeln!(f, "{}", statement_line)?;
+            }
+        }
+        writeln!(f, "Closing balance")?;
+        writeln!(f, "{}", self.closing_balance)?;
+        if let Some(ref closing_available_balance) = self.closing_available_balance {
+            writeln!(f, "Closing available balance")?;
+            writeln!(f, "{}", closing_available_balance)?;
+        }
+        if let Some(ref forward_available_balance) = self.forward_available_balance {
+            writeln!(f, "Forward available balance")?;
+            writeln!(f, "{}", forward_available_balance)?;
+        }
+        if let Some(ref information_to_account_owner) = self.information_to_account_owner {
+            writeln!(f, "Information to account owner")?;
+            writeln!(f, "{}", information_to_account_owner)?;
+        }
+        Ok(())
+    }
 }
 
 impl Mt940CustomerStatementMessage {

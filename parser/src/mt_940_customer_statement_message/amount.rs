@@ -8,12 +8,6 @@ const AMOUNT_MAX_LENGTH: usize = 15;
 #[derive(Debug, PartialEq)]
 pub(super) struct Amount(Decimal);
 
-impl Amount {
-    pub(super) fn new(value: Decimal) -> Self {
-        Self(value)
-    }
-}
-
 impl TryFrom<&str> for Amount {
     type Error = AmountParseError;
 

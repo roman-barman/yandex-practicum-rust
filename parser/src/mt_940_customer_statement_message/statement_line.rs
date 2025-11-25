@@ -270,9 +270,9 @@ fn read_account_owner_ref(
     cursor: &mut usize,
 ) -> Result<AccountOwnerRef, StatementLineParseError> {
     let mut read_len = 0;
-    let mut chars = line.chars().skip(*cursor);
+    let chars = line.chars().skip(*cursor);
     let mut value = String::new();
-    while let Some(c) = chars.next() {
+    for c in chars {
         if c == '/' && value.ends_with('/') {
             value.pop();
             read_len -= 1;
@@ -296,7 +296,9 @@ fn read_bank_ref(
     }
     if bank_ref.starts_with("//") {
         *cursor += bank_ref.len();
-        Ok(Some(BankRef::try_from(&bank_ref[2..])?))
+        Ok(Some(BankRef::try_from(
+            bank_ref.strip_prefix("//").unwrap_or(""),
+        )?))
     } else {
         Err(StatementLineParseError::InvalidFormat(None))
     }
@@ -428,7 +430,6 @@ impl Error for StatementLineError {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rust_decimal::Decimal;
 
     const DATA: &str = "2303010228CK366336,2NTRFArbi/deposit//1323333800";
 
@@ -526,7 +527,7 @@ mod tests {
     fn test_read_amount() {
         let mut cursor = DATE_LENGTH + ENTRY_DATE_LENGTH + 2;
         let result = read_amount(DATA, &mut cursor);
-        assert_eq!(result, Ok(Amount::new(Decimal::new(3663362, 1))));
+        assert_eq!(result, Ok(Amount::try_from("366336,2").unwrap()));
         assert_eq!(cursor, DATE_LENGTH + ENTRY_DATE_LENGTH + 10);
     }
 
@@ -608,7 +609,7 @@ mod tests {
                 entry_date: Some(Date::new(NaiveDate::from_ymd_opt(2023, 2, 28).unwrap())),
                 debit_credit_mark: CreditDebitMark::Credit,
                 funds_code: Some(FundsCode::try_from(&'K').unwrap()),
-                amount: Amount::new(Decimal::new(3663362, 1)),
+                amount: Amount::try_from("366336,2").unwrap(),
                 transaction_type: TransactionType::NonSwiftTransfer,
                 identification_code: IdentificationCode::try_from("TRF").unwrap(),
                 account_owner_ref: AccountOwnerRef::try_from("Arbi/deposit").unwrap(),
