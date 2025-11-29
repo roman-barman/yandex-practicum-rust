@@ -1,9 +1,11 @@
 mod credit_debit_mark;
 mod currency_code;
+pub(super) mod state;
 
 use crate::mt_940_customer_statement_message::amount::*;
 use crate::mt_940_customer_statement_message::balance::credit_debit_mark::*;
 use crate::mt_940_customer_statement_message::balance::currency_code::*;
+use crate::mt_940_customer_statement_message::balance::state::*;
 use crate::mt_940_customer_statement_message::date::*;
 use std::any::Any;
 use std::error::Error;
@@ -16,6 +18,7 @@ pub(super) struct Balance {
     date: Date,
     currency_code: CurrencyCode,
     amount: Amount,
+    state: Option<State>,
 }
 
 impl Balance {
@@ -25,6 +28,14 @@ impl Balance {
         self.currency_code.write_to(writer)?;
         self.amount.write_to(writer)?;
         Ok(())
+    }
+
+    pub(super) fn set_state(&mut self, state: State) {
+        self.state = Some(state);
+    }
+
+    pub(super) fn get_state(&self) -> Option<&State> {
+        self.state.as_ref()
     }
 }
 
@@ -47,12 +58,16 @@ impl TryFrom<&str> for Balance {
             date,
             currency_code,
             amount,
+            state: None,
         })
     }
 }
 
 impl Display for Balance {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if let Some(state) = &self.state {
+            writeln!(f, "- State: {}", state)?;
+        }
         writeln!(f, "- Debit/Credit: {}", self.debit_credit_mark)?;
         writeln!(f, "- Date: {}", self.date)?;
         writeln!(f, "- Currency code: {}", self.currency_code)?;
@@ -157,11 +172,19 @@ mod tests {
                 date: Date::new(NaiveDate::from_ymd_opt(2023, 3, 6).unwrap()),
                 currency_code: CurrencyCode::try_from("DKK").unwrap(),
                 amount: Amount::try_from("985623,04").unwrap(),
+                state: None
             })
         );
         assert_eq!(
             result.unwrap().to_string(),
             "- Debit/Credit: Debit\n- Date: 2023-03-06\n- Currency code: DKK\n- Amount: 985623.04\n"
+        );
+
+        let mut balance = Balance::try_from("D230306DKK985623,04").unwrap();
+        balance.set_state(State::Intermediate);
+        assert_eq!(
+            balance.to_string(),
+            "- State: Intermediate\n- Debit/Credit: Debit\n- Date: 2023-03-06\n- Currency code: DKK\n- Amount: 985623.04\n"
         );
     }
 }
