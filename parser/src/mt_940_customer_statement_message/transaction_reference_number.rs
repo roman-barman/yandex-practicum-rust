@@ -1,10 +1,17 @@
 use std::error::Error;
 use std::fmt::Display;
+use std::io::Write;
 
 const TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct TransactionReferenceNumber(String);
+
+impl TransactionReferenceNumber {
+    pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())
+    }
+}
 
 impl TryFrom<&str> for TransactionReferenceNumber {
     type Error = TransactionReferenceNumberParseError;
@@ -62,6 +69,16 @@ impl Error for TransactionReferenceNumberParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_transaction_reference_number_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        TransactionReferenceNumber("1234567890".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"1234567890");
+    }
 
     #[test]
     fn test_empty_transaction_reference_number() {

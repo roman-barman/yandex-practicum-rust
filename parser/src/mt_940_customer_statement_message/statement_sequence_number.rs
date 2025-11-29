@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::io::Write;
 
 const SEQUENCE_NUMBER_MAX_LENGTH: usize = 5;
 const STATEMENT_NUMBER_MAX_LENGTH: usize = 5;
@@ -8,6 +9,23 @@ const STATEMENT_NUMBER_MAX_LENGTH: usize = 5;
 pub(super) struct StatementSequenceNumber {
     statement_number: u16,
     sequence_number: Option<u16>,
+}
+
+impl StatementSequenceNumber {
+    pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        if self.sequence_number.is_none() {
+            writer.write_all(self.statement_number.to_string().as_bytes())
+        } else {
+            writer.write_all(
+                format!(
+                    "{}/{}",
+                    self.statement_number,
+                    self.sequence_number.unwrap()
+                )
+                .as_bytes(),
+            )
+        }
+    }
 }
 
 impl TryFrom<&str> for StatementSequenceNumber {
@@ -111,6 +129,28 @@ impl Error for StatementSequenceNumberParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_statement_sequence_number_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        StatementSequenceNumber {
+            statement_number: 12345,
+            sequence_number: Some(2),
+        }
+        .write_to(&mut buffer)
+        .unwrap();
+        assert_eq!(buffer.get_ref(), b"12345/2");
+
+        let mut buffer = Cursor::new(Vec::new());
+        StatementSequenceNumber {
+            statement_number: 12345,
+            sequence_number: None,
+        }
+        .write_to(&mut buffer)
+        .unwrap();
+        assert_eq!(buffer.get_ref(), b"12345");
+    }
 
     #[test]
     fn test_empty_statement_sequence_number() {

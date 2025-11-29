@@ -4,6 +4,12 @@ use std::fmt::{Display, Formatter};
 #[derive(Debug, PartialEq)]
 pub(super) struct FundsCode(char);
 
+impl FundsCode {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(&[self.0 as u8])
+    }
+}
+
 impl TryFrom<&char> for FundsCode {
     type Error = FundsCodeParseError;
     fn try_from(value: &char) -> Result<Self, Self::Error> {
@@ -37,6 +43,14 @@ impl Error for FundsCodeParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_funds_code_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        FundsCode('A').write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"A");
+    }
 
     #[test]
     fn test_invalid_funds_code() {

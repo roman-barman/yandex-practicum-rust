@@ -1,10 +1,17 @@
 use std::error::Error;
 use std::fmt::Display;
+use std::io::Write;
 
 const RELATED_REFERENCE_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct RelatedReference(String);
+
+impl RelatedReference {
+    pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())
+    }
+}
 
 impl TryFrom<&str> for RelatedReference {
     type Error = RelatedReferenceParseError;
@@ -60,6 +67,16 @@ impl Error for RelatedReferenceParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_related_reference_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        RelatedReference("1234567890".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"1234567890");
+    }
 
     #[test]
     fn test_empty_related_reference() {

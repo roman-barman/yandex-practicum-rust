@@ -8,6 +8,7 @@ use crate::mt_940_customer_statement_message::date::*;
 use std::any::Any;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::io::Write;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct Balance {
@@ -15,6 +16,16 @@ pub(super) struct Balance {
     date: Date,
     currency_code: CurrencyCode,
     amount: Amount,
+}
+
+impl Balance {
+    pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        self.debit_credit_mark.write_to(writer)?;
+        self.date.write_to(writer)?;
+        self.currency_code.write_to(writer)?;
+        self.amount.write_to(writer)?;
+        Ok(())
+    }
 }
 
 impl TryFrom<&str> for Balance {
@@ -117,6 +128,18 @@ impl Error for BalanceParseError {}
 mod tests {
     use super::*;
     use chrono::NaiveDate;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_balance_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        Balance::try_from("D230306DKK985623,04")
+            .unwrap()
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"D230306DKK985623,04");
+    }
+
     #[test]
     fn test_empty_opening_balance() {
         let result = Balance::try_from("");

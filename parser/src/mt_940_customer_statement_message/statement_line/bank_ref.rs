@@ -6,6 +6,13 @@ const BANK_REF_MAX_LENGTH: usize = 16;
 #[derive(Debug, PartialEq)]
 pub(super) struct BankRef(String);
 
+impl BankRef {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())?;
+        Ok(())
+    }
+}
+
 impl TryFrom<&str> for BankRef {
     type Error = BankRefParseError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -50,6 +57,15 @@ impl Error for BankRefParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_bank_ref_write_to() {
+        let mut buffer = Vec::new();
+        BankRef("ValidRef".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer, b"ValidRef");
+    }
 
     #[test]
     fn test_empty_bank_ref() {

@@ -8,6 +8,16 @@ const AMOUNT_MAX_LENGTH: usize = 15;
 #[derive(Debug, PartialEq)]
 pub(super) struct Amount(Decimal);
 
+impl Amount {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        let mut data = self.0.to_string().replace('.', ",");
+        if !data.contains(',') {
+            data.push_str(",0")
+        }
+        writer.write_all(data.as_bytes())
+    }
+}
+
 impl TryFrom<&str> for Amount {
     type Error = AmountParseError;
 
@@ -62,6 +72,22 @@ impl Error for AmountParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_amount_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        Amount(Decimal::new(1234567809, 2))
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"12345678,09");
+
+        let mut buffer = Cursor::new(Vec::new());
+        Amount(Decimal::new(1234567809, 0))
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"1234567809,0");
+    }
 
     #[test]
     fn test_empty_amount() {

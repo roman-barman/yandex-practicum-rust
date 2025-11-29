@@ -7,6 +7,16 @@ pub(super) enum TransactionType {
     FirstAdvice,
 }
 
+impl TransactionType {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        match self {
+            Self::SwiftTransfer => writer.write_all(b"S"),
+            Self::NonSwiftTransfer => writer.write_all(b"N"),
+            Self::FirstAdvice => writer.write_all(b"F"),
+        }
+    }
+}
+
 impl TryFrom<&char> for TransactionType {
     type Error = TransactionTypeParseError;
     fn try_from(value: &char) -> Result<Self, Self::Error> {
@@ -47,6 +57,26 @@ impl std::error::Error for TransactionTypeParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_transaction_type_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        TransactionType::SwiftTransfer
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"S");
+
+        let mut buffer = Cursor::new(Vec::new());
+        TransactionType::NonSwiftTransfer
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"N");
+
+        let mut buffer = Cursor::new(Vec::new());
+        TransactionType::FirstAdvice.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"F");
+    }
 
     #[test]
     fn test_invalid_transaction_type() {

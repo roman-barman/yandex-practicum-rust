@@ -12,6 +12,7 @@ use chrono::NaiveDate;
 use std::any::Any;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::io::Write;
 use std::num::ParseIntError;
 
 mod account_owner_ref;
@@ -61,6 +62,34 @@ impl StatementLine {
             None => {
                 self.information_to_account_owner = Some(value);
             }
+        }
+        Ok(())
+    }
+
+    pub(super) fn get_information_to_account_owner(&self) -> Option<&InformationToAccountOwner> {
+        self.information_to_account_owner.as_ref()
+    }
+
+    pub(super) fn statement_line_write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        self.value_date.write_to(writer)?;
+        if let Some(entry_date) = &self.entry_date {
+            entry_date.write_without_year_to(writer)?;
+        }
+        self.debit_credit_mark.write_to(writer)?;
+        if let Some(funds_code) = &self.funds_code {
+            funds_code.write_to(writer)?;
+        }
+        self.amount.write_to(writer)?;
+        self.transaction_type.write_to(writer)?;
+        self.identification_code.write_to(writer)?;
+        self.account_owner_ref.write_to(writer)?;
+        if let Some(bank_ref) = &self.bank_ref {
+            writer.write_all(b"//")?;
+            bank_ref.write_to(writer)?;
+        }
+        if let Some(supplementary_details) = &self.supplementary_details {
+            writer.write_all(b"\r\n")?;
+            supplementary_details.write_to(writer)?;
         }
         Ok(())
     }
@@ -430,8 +459,29 @@ impl Error for StatementLineError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
 
     const DATA: &str = "2303010228CK366336,2NTRFArbi/deposit//1323333800";
+
+    #[test]
+    fn test_statement_line_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        StatementLine::try_from(DATA)
+            .unwrap()
+            .statement_line_write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), DATA.as_bytes());
+
+        let mut buffer = Cursor::new(Vec::new());
+        let mut line = StatementLine::try_from(DATA).unwrap();
+        line.add_supplementary_details(SupplementaryDetails::try_from("test").unwrap())
+            .unwrap();
+        line.statement_line_write_to(&mut buffer).unwrap();
+        assert_eq!(
+            buffer.get_ref(),
+            b"2303010228CK366336,2NTRFArbi/deposit//1323333800\r\ntest"
+        );
+    }
 
     #[test]
     fn test_read_value_date() {

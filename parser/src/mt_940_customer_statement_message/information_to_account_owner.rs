@@ -8,6 +8,19 @@ const INFORMATION_MAX_LENGTH: usize = 6;
 pub(super) struct InformationToAccountOwner(Vec<String>);
 
 impl InformationToAccountOwner {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        for (i, line) in self.0.iter().enumerate() {
+            if i != self.0.len() - 1 {
+                writeln!(writer, "{}", line)?;
+            } else {
+                write!(writer, "{}", line)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+impl InformationToAccountOwner {
     pub(super) fn add(
         &mut self,
         value: InformationToAccountOwner,
@@ -86,6 +99,19 @@ impl Error for InformationToAccountOwnerError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_information_to_account_owner_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        InformationToAccountOwner(vec![
+            "ValidInformation".to_string(),
+            "ValidInformation2".to_string(),
+        ])
+        .write_to(&mut buffer)
+        .unwrap();
+        assert_eq!(buffer.get_ref(), b"ValidInformation\nValidInformation2");
+    }
 
     #[test]
     fn test_empty_information_to_account_owner() {

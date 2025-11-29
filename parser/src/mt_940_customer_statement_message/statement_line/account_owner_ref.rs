@@ -6,6 +6,13 @@ const ACCOUNT_OWNER_REF_MAX_LENGTH: usize = 16;
 #[derive(Debug, PartialEq)]
 pub(super) struct AccountOwnerRef(String);
 
+impl AccountOwnerRef {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())?;
+        Ok(())
+    }
+}
+
 impl TryFrom<&str> for AccountOwnerRef {
     type Error = AccountOwnerRefParseError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -50,6 +57,16 @@ impl Error for AccountOwnerRefParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_account_owner_ref_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        AccountOwnerRef("ValidRef".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"ValidRef");
+    }
 
     #[test]
     fn test_empty_account_owner_ref() {

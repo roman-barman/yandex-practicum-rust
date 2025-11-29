@@ -6,6 +6,13 @@ pub(super) const IDENTIFICATION_CODE_LENGTH: usize = 3;
 #[derive(Debug, PartialEq)]
 pub(super) struct IdentificationCode(String);
 
+impl IdentificationCode {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())?;
+        Ok(())
+    }
+}
+
 impl TryFrom<&str> for IdentificationCode {
     type Error = IdentificationCodeParseError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -52,6 +59,16 @@ impl Error for IdentificationCodeParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_identification_code_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        IdentificationCode("123".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"123");
+    }
 
     #[test]
     fn test_empty_identification_code() {

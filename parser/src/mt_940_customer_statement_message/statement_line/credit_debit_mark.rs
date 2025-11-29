@@ -11,6 +11,17 @@ pub(super) enum CreditDebitMark {
     ReversalOfDebit,
 }
 
+impl CreditDebitMark {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        match self {
+            CreditDebitMark::Credit => writer.write_all(b"C"),
+            CreditDebitMark::Debit => writer.write_all(b"D"),
+            CreditDebitMark::ReversalOfCredit => writer.write_all(b"RC"),
+            CreditDebitMark::ReversalOfDebit => writer.write_all(b"RD"),
+        }
+    }
+}
+
 impl TryFrom<&str> for CreditDebitMark {
     type Error = CreditDebitMarkParseError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -75,6 +86,30 @@ impl Error for CreditDebitMarkParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_credit_debit_mark_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::Credit.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"C");
+
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::Debit.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"D");
+
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::ReversalOfCredit
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"RC");
+
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::ReversalOfDebit
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"RD");
+    }
 
     #[test]
     fn test_empty_credit_debit_mark() {

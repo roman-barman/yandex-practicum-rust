@@ -19,7 +19,7 @@ use crate::mt_940_customer_statement_message::statement_line::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
 use std::fmt::{Display, Formatter};
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader, Read, Write};
 
 const TRANSACTION_REFERENCE_NUMBER_TAG: &str = ":20:";
 const RELATED_REFERENCE_TAG: &str = ":21:";
@@ -398,6 +398,67 @@ impl Mt940CustomerStatementMessage {
 
         Ok(result)
     }
+
+    pub fn write_to<T: Write>(&self, writer: &mut T) -> Result<(), std::io::Error> {
+        write!(writer, "{}", TRANSACTION_REFERENCE_NUMBER_TAG)?;
+        self.transaction_reference_number.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref related_reference) = self.related_reference {
+            write!(writer, "{}", RELATED_REFERENCE_TAG)?;
+            related_reference.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        write!(writer, "{}", ACCOUNT_IDENTIFICATION_TAG)?;
+        self.account_identification.write_to(writer)?;
+        writeln!(writer)?;
+
+        write!(writer, "{}", STATEMENT_SEQUENCE_NUMBER_TAG)?;
+        self.statement_sequence_no.write_to(writer)?;
+        writeln!(writer)?;
+
+        write!(writer, "{}", OPENING_M_BALANCE_TAG)?;
+        self.opening_balance.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref statement_lines) = self.statement_lines {
+            for statement_line in statement_lines {
+                write!(writer, "{}", STATEMENT_LINE_TAG)?;
+                statement_line.statement_line_write_to(writer)?;
+                writeln!(writer)?;
+                if let Some(info) = statement_line.get_information_to_account_owner() {
+                    write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
+                    info.write_to(writer)?;
+                    writeln!(writer)?;
+                }
+            }
+        }
+
+        write!(writer, "{}", CLOSING_M_BALANCE_TAG)?;
+        self.closing_balance.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref closing_available_balance) = self.closing_available_balance {
+            write!(writer, "{}", CLOSING_AVAILABLE_BALANCE_TAG)?;
+            closing_available_balance.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        if let Some(ref forward_available_balance) = self.forward_available_balance {
+            write!(writer, "{}", FORWARD_AVAILABLE_BALANCE_TAG)?;
+            forward_available_balance.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        if let Some(ref information_to_account_owner) = self.information_to_account_owner {
+            write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
+            information_to_account_owner.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        Ok(())
+    }
 }
 
 fn read_information_to_account_owner(
@@ -628,40 +689,54 @@ mod tests {
     use super::*;
     use std::io::Cursor;
 
+    const DATA: &str = "
+{1:F01GSCRUS30XXXX3614000002}{2:I940GSCRUS30XXXXN}{4:
+:20:15486025400
+:25:107048825
+:28C:49/2
+:60M:C250218USD2732398848,02
+:61:2502180218D12,01NTRFGSLNVSHSUTKWDR//GI2504900007841
+:86:/EREF/GSLNVSHSUTKWDR
+/CRNM/GOLDMAN SACHS BANK USA
+/CACT/107045863/CBIC/GSCRUS30XXX
+/REMI/USD Payment to Vendor
+/OPRP/Tag Payment
+:61:2502180218D12,01NTRFGSOXWBAQYTF4VH//GI2504900005623
+:86:/EREF/GSOXWBAQYTF4VH
+/CRNM/GOLDMAN SACHS BANK USA
+/CACT/107045863/CBIC/GSCRUS30XXX
+/REMI/The maximum length of the block is 65 characters
+/OPRP/Tag Payment
+:61:2502180218D12,01NTRFGSC7MZKHS3UA23//GI2504900005621
+:86:/EREF/GSC7MZKHS3UA23
+/CRNM/GOLDMAN SACHS BANK USA
+/CACT/107045863/CBIC/GSCRUS30XXX
+/REMI/USD Payment from USD account
+/OPRP/Tag Payment
+:61:2502180218C11,25NTRFGS0DUTB31IOUHRS//GI2504900004512
+:86:/EREF/GS0DUTB31IOUHRS
+/DACT/8348577826/DBIC/CITIUS30XXX
+/OAMT/11-25/
+/DCID/CPQYTB74
+:62M:C250218USD2937898,77
+-}";
+
+    #[test]
+    fn test_write_to() {
+        let mut cursor = Cursor::new(DATA.as_bytes());
+        let message = Mt940CustomerStatementMessage::read_from(&mut cursor)
+            .unwrap()
+            .pop()
+            .unwrap();
+
+        let mut buffer = Cursor::new(Vec::new());
+        message.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), DATA[55..896].as_bytes());
+    }
+
     #[test]
     fn test_read_from() {
-        let data = b"
-            {1:F01GSCRUS30XXXX3614000002}{2:I940GSCRUS30XXXXN}{4:
-            :20:15486025400
-            :25:107048825
-            :28C:49/2
-            :60M:C250218USD2732398848,02
-            :61:2502180218D12,01NTRFGSLNVSHSUTKWDR//GI2504900007841
-            :86:/EREF/GSLNVSHSUTKWDR
-            /CRNM/GOLDMAN SACHS BANK USA
-            /CACT/107045863/CBIC/GSCRUS30XXX
-            /REMI/USD Payment to Vendor
-            /OPRP/Tag Payment
-            :61:2502180218D12,01NTRFGSOXWBAQYTF4VH//GI2504900005623
-            :86:/EREF/GSOXWBAQYTF4VH
-            /CRNM/GOLDMAN SACHS BANK USA
-            /CACT/107045863/CBIC/GSCRUS30XXX
-            /REMI/The maximum length of the block is 65 characters
-            /OPRP/Tag Payment
-            :61:2502180218D12,01NTRFGSC7MZKHS3UA23//GI2504900005621
-            :86:/EREF/GSC7MZKHS3UA23
-            /CRNM/GOLDMAN SACHS BANK USA
-            /CACT/107045863/CBIC/GSCRUS30XXX
-            /REMI/USD Payment from USD account
-            /OPRP/Tag Payment
-            :61:2502180218C11,25NTRFGS0DUTB31IOUHRS//GI2504900004512
-            :86:/EREF/GS0DUTB31IOUHRS
-            /DACT/8348577826/DBIC/CITIUS30XXX
-            /OAMT/11-25/
-            /DCID/CPQYTB74
-            :62M:C250218USD2937898,77
-            -}";
-        let mut cursor = Cursor::new(data);
+        let mut cursor = Cursor::new(DATA.as_bytes());
         let result = Mt940CustomerStatementMessage::read_from(&mut cursor);
         assert!(result.is_ok());
 

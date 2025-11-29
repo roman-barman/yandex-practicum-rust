@@ -7,6 +7,15 @@ pub(super) enum CreditDebitMark {
     Debit,
 }
 
+impl CreditDebitMark {
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        match self {
+            CreditDebitMark::Credit => writer.write_all(b"C"),
+            CreditDebitMark::Debit => writer.write_all(b"D"),
+        }
+    }
+}
+
 impl TryFrom<&char> for CreditDebitMark {
     type Error = CreditDebitMarkParseError;
     fn try_from(value: &char) -> Result<Self, Self::Error> {
@@ -47,6 +56,18 @@ impl Error for CreditDebitMarkParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_credit_debit_mark_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::Credit.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"C");
+
+        let mut buffer = Cursor::new(Vec::new());
+        CreditDebitMark::Debit.write_to(&mut buffer).unwrap();
+        assert_eq!(buffer.get_ref(), b"D");
+    }
 
     #[test]
     fn test_invalid_credit_debit_mark() {

@@ -1,10 +1,17 @@
 use std::error::Error;
 use std::fmt::Display;
+use std::io::Write;
 
 const ACCOUNT_IDENTIFICATION_MAX_LENGTH: usize = 35;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct AccountIdentification(String);
+
+impl AccountIdentification {
+    pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.as_bytes())
+    }
+}
 
 impl TryFrom<&str> for AccountIdentification {
     type Error = AccountIdentificationParseError;
@@ -52,6 +59,16 @@ impl Error for AccountIdentificationParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_account_identification_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        AccountIdentification("12345DK".to_string())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"12345DK");
+    }
 
     #[test]
     fn test_empty_account_identification() {
@@ -82,9 +99,6 @@ mod tests {
     fn test_valid_account_identification() {
         let result = AccountIdentification::try_from("12345DK");
         assert_eq!(result, Ok(AccountIdentification("12345DK".to_string())));
-        assert_eq!(
-            result.unwrap().to_string(),
-            "12345DK"
-        );
+        assert_eq!(result.unwrap().to_string(), "12345DK");
     }
 }

@@ -15,6 +15,17 @@ impl Date {
     pub(super) fn ymd_date(&self) -> (i32, u32, u32) {
         (self.0.year(), self.0.month(), self.0.day())
     }
+
+    pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(self.0.format("%y%m%d").to_string().as_bytes())
+    }
+
+    pub(super) fn write_without_year_to<W: std::io::Write>(
+        &self,
+        writer: &mut W,
+    ) -> std::io::Result<()> {
+        writer.write_all(self.0.format("%m%d").to_string().as_bytes())
+    }
 }
 
 impl TryFrom<&str> for Date {
@@ -84,6 +95,25 @@ impl Error for DateParseError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_date_write_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        Date(NaiveDate::from_ymd_opt(2021, 1, 1).unwrap())
+            .write_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"210101");
+    }
+
+    #[test]
+    fn test_date_write_without_year_to() {
+        let mut buffer = Cursor::new(Vec::new());
+        Date(NaiveDate::from_ymd_opt(2021, 1, 1).unwrap())
+            .write_without_year_to(&mut buffer)
+            .unwrap();
+        assert_eq!(buffer.get_ref(), b"0101");
+    }
 
     #[test]
     fn test_empty_date() {
