@@ -1,5 +1,6 @@
 use clap::Parser;
 use parser::Mt940CustomerStatementMessage;
+use std::io::Write;
 
 mod args;
 
@@ -12,7 +13,16 @@ fn main() {
             match result {
                 Ok(statements) => {
                     for statement in statements {
-                        println!("{}", statement);
+                        match args.output_format {
+                            None => println!("{}", statement),
+                            Some(args::OutputFormat::MT940) => {
+                                let mut stdout = std::io::stdout();
+                                statement
+                                    .write_to(&mut stdout)
+                                    .expect("Unable to write to stdout");
+                                stdout.flush().expect("Unable to flush stdout");
+                            }
+                        }
                     }
                 }
                 Err(err) => match err.inner() {
