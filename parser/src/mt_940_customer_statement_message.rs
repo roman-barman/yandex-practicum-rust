@@ -10,6 +10,7 @@ mod statement_sequence_number;
 mod transaction_reference_number;
 
 use crate::mt_940_customer_statement_message::account_identification::*;
+use crate::mt_940_customer_statement_message::balance::state::*;
 use crate::mt_940_customer_statement_message::balance::*;
 use crate::mt_940_customer_statement_message::error::*;
 use crate::mt_940_customer_statement_message::information_to_account_owner::*;
@@ -24,7 +25,6 @@ use std::io::{BufRead, BufReader, Read, Write};
 const TRANSACTION_REFERENCE_NUMBER_TAG: &str = ":20:";
 const RELATED_REFERENCE_TAG: &str = ":21:";
 const ACCOUNT_IDENTIFICATION_TAG: &str = ":25:";
-const ACCOUNT_P_IDENTIFICATION_TAG: &str = ":25P:";
 const STATEMENT_SEQUENCE_NUMBER_TAG: &str = ":28C:";
 const OPENING_F_BALANCE_TAG: &str = ":60F:";
 const OPENING_M_BALANCE_TAG: &str = ":60M:";
@@ -139,16 +139,6 @@ impl Mt940CustomerStatementMessage {
                         ACCOUNT_IDENTIFICATION_TAG,
                     )?
                 }
-                Some(TRANSACTION_REFERENCE_NUMBER_TAG)
-                    if line.starts_with(ACCOUNT_P_IDENTIFICATION_TAG) =>
-                {
-                    read_account_identification(
-                        line.as_str(),
-                        &mut previous_tag,
-                        &mut builder,
-                        ACCOUNT_P_IDENTIFICATION_TAG,
-                    )?
-                }
                 Some(RELATED_REFERENCE_TAG) if !is_tag(&line) => continue,
                 Some(RELATED_REFERENCE_TAG) if line.starts_with(ACCOUNT_IDENTIFICATION_TAG) => {
                     read_account_identification(
@@ -158,20 +148,10 @@ impl Mt940CustomerStatementMessage {
                         ACCOUNT_IDENTIFICATION_TAG,
                     )?;
                 }
-                Some(RELATED_REFERENCE_TAG) if line.starts_with(ACCOUNT_P_IDENTIFICATION_TAG) => {
-                    read_account_identification(
-                        line.as_str(),
-                        &mut previous_tag,
-                        &mut builder,
-                        ACCOUNT_P_IDENTIFICATION_TAG,
-                    )?;
-                }
-                Some(ACCOUNT_IDENTIFICATION_TAG) | Some(ACCOUNT_P_IDENTIFICATION_TAG)
-                    if !is_tag(&line) =>
-                {
+                Some(ACCOUNT_IDENTIFICATION_TAG) if !is_tag(&line) => {
                     continue;
                 }
-                Some(ACCOUNT_IDENTIFICATION_TAG) | Some(ACCOUNT_P_IDENTIFICATION_TAG)
+                Some(ACCOUNT_IDENTIFICATION_TAG)
                     if line.starts_with(STATEMENT_SEQUENCE_NUMBER_TAG) =>
                 {
                     builder.add_statement_sequence_number(StatementSequenceNumber::try_from(
@@ -186,6 +166,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         OPENING_F_BALANCE_TAG,
+                        State::Final,
                     )?;
                 }
                 Some(STATEMENT_SEQUENCE_NUMBER_TAG) if line.starts_with(OPENING_M_BALANCE_TAG) => {
@@ -194,6 +175,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         OPENING_M_BALANCE_TAG,
+                        State::Intermediate,
                     )?;
                 }
                 Some(OPENING_F_BALANCE_TAG) | Some(OPENING_M_BALANCE_TAG) if !is_tag(&line) => {
@@ -212,6 +194,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_F_BALANCE_TAG,
+                        State::Final,
                     )?;
                 }
                 Some(OPENING_F_BALANCE_TAG) | Some(OPENING_M_BALANCE_TAG)
@@ -222,6 +205,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_M_BALANCE_TAG,
+                        State::Intermediate,
                     )?;
                 }
                 Some(STATEMENT_LINE_TAG) if !is_tag(&line) => {
@@ -246,6 +230,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_F_BALANCE_TAG,
+                        State::Final,
                     )?;
                 }
                 Some(STATEMENT_LINE_TAG) if line.starts_with(CLOSING_M_BALANCE_TAG) => {
@@ -254,6 +239,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_M_BALANCE_TAG,
+                        State::Intermediate,
                     )?;
                 }
                 Some(STATEMENT_LINE_INFO_TO_ACCOUNT_OWNER_TAG) if !is_tag(&line) => {
@@ -274,6 +260,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_F_BALANCE_TAG,
+                        State::Final,
                     )?;
                 }
                 Some(STATEMENT_LINE_INFO_TO_ACCOUNT_OWNER_TAG)
@@ -284,6 +271,7 @@ impl Mt940CustomerStatementMessage {
                         &mut previous_tag,
                         &mut builder,
                         CLOSING_M_BALANCE_TAG,
+                        State::Intermediate,
                     )?;
                 }
                 Some(CLOSING_F_BALANCE_TAG) | Some(CLOSING_M_BALANCE_TAG) if !is_tag(&line) => {
@@ -418,7 +406,11 @@ impl Mt940CustomerStatementMessage {
         self.statement_sequence_no.write_to(writer)?;
         writeln!(writer)?;
 
-        write!(writer, "{}", OPENING_M_BALANCE_TAG)?;
+        match self.opening_balance.get_state() {
+            Some(State::Final) => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
+            Some(State::Intermediate) => write!(writer, "{}", OPENING_M_BALANCE_TAG)?,
+            None => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
+        }
         self.opening_balance.write_to(writer)?;
         writeln!(writer)?;
 
@@ -435,7 +427,11 @@ impl Mt940CustomerStatementMessage {
             }
         }
 
-        write!(writer, "{}", CLOSING_M_BALANCE_TAG)?;
+        match self.closing_balance.get_state() {
+            Some(State::Final) => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
+            Some(State::Intermediate) => write!(writer, "{}", CLOSING_M_BALANCE_TAG)?,
+            None => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
+        }
         self.closing_balance.write_to(writer)?;
         writeln!(writer)?;
 
@@ -490,8 +486,11 @@ fn read_closing_balance(
     previous_tag: &mut Option<&str>,
     builder: &mut Mt940CustomerStatementMessageBuilder,
     tag: &'static str,
+    state: State,
 ) -> Result<(), Mt940CustomerStatementMessageReadError> {
-    builder.add_closing_balance(Balance::try_from(line.trim_start_matches(tag))?);
+    let mut balance = Balance::try_from(line.trim_start_matches(tag))?;
+    balance.set_state(state);
+    builder.add_closing_balance(balance);
     *previous_tag = Some(tag);
     Ok(())
 }
@@ -513,8 +512,11 @@ fn read_opening_balance(
     previous_tag: &mut Option<&str>,
     builder: &mut Mt940CustomerStatementMessageBuilder,
     tag: &'static str,
+    balance_state: State,
 ) -> Result<(), Mt940CustomerStatementMessageReadError> {
-    builder.add_opening_balance(Balance::try_from(line.trim_start_matches(tag))?);
+    let mut balance = Balance::try_from(line.trim_start_matches(tag))?;
+    balance.set_state(balance_state);
+    builder.add_opening_balance(balance);
     *previous_tag = Some(tag);
     Ok(())
 }
@@ -757,15 +759,13 @@ mod tests {
             message.statement_sequence_no,
             StatementSequenceNumber::try_from("49/2").unwrap()
         );
-        assert_eq!(
-            message.opening_balance,
-            Balance::try_from("C250218USD2732398848,02").unwrap()
-        );
+        let mut opening_balance = Balance::try_from("C250218USD2732398848,02").unwrap();
+        opening_balance.set_state(State::Intermediate);
+        assert_eq!(message.opening_balance, opening_balance);
         assert_eq!(message.statement_lines.unwrap().len(), 4);
-        assert_eq!(
-            message.closing_balance,
-            Balance::try_from("C250218USD2937898,77").unwrap()
-        );
+        let mut closing_balance = Balance::try_from("C250218USD2937898,77").unwrap();
+        closing_balance.set_state(State::Intermediate);
+        assert_eq!(message.closing_balance, closing_balance);
         assert_eq!(message.closing_available_balance, None);
         assert_eq!(message.forward_available_balance, None);
         assert_eq!(message.information_to_account_owner, None);
