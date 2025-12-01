@@ -1,4 +1,11 @@
-use chrono::{DateTime, Utc};
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq)]
-pub(super) struct CreationDateTime(DateTime<Utc>);
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub(super) struct CreationDateTime(NaiveDateTime);
+
+impl CreationDateTime {
+    pub(super) fn new(creation_date_time: NaiveDateTime) -> Self {
+        CreationDateTime(creation_date_time)
+    }
+}
