@@ -16,14 +16,23 @@ use crate::camt_053_message::statement::balance::*;
 use crate::camt_053_message::statement::from_to_date::*;
 use crate::camt_053_message::statement::sequence_number::*;
 use crate::camt_053_message::statement::transactions_summary::*;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(super) struct Statement {
+    #[serde(rename = "Id")]
     identification: Identification,
-    electronic_sequence_number: SequenceNumber,
-    legal_sequence_number: Option<SequenceNumber>,
-    creation_date_time: CreationDateTime,
-    from_to_date: Option<FromToDate>,
-    account: Account,
-    balances: Vec<Balance>,
-    transactions_summary: Option<TransactionsSummary>,
+    //electronic_sequence_number: SequenceNumber,
+    //legal_sequence_number: Option<SequenceNumber>,
+    //creation_date_time: CreationDateTime,
+    //from_to_date: Option<FromToDate>,
+    //account: Account,
+    //balances: Vec<Balance>,
+    //transactions_summary: Option<TransactionsSummary>,
+}
+
+impl Statement {
+    pub(super) fn new(identification: Identification) -> Self {
+        Self { identification }
+    }
 }

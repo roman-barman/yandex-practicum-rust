@@ -12,7 +12,8 @@ mod statement;
 pub struct Camt053Message {
     #[serde(rename = "GrpHdr")]
     group_header: GroupHeader,
-    //statements: Vec<Statement>,
+    #[serde(rename = "Stmt")]
+    statements: Vec<Statement>,
 }
 
 impl Camt053Message {
@@ -44,6 +45,9 @@ mod tests {
             <MsgId>XXX24Y4XXX1Y000000001</MsgId>
             <CreDtTm>2023-04-20T23:24:31</CreDtTm>
         </GrpHdr>
+        <Stmt>
+            <Id>XXX24Y4XXX1Y000000001</Id>
+        </Stmt>
     </BkToCstmrStmt>
 </Document>";
 
@@ -64,6 +68,12 @@ mod tests {
                         .unwrap()
                 )
             )
+        );
+        assert_eq!(message.statements.len(), 1);
+        let statement = &message.statements[0];
+        assert_eq!(
+            *statement,
+            Statement::new(Identification::new("XXX24Y4XXX1Y000000001".to_string()))
         );
     }
 }
