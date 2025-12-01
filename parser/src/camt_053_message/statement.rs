@@ -6,7 +6,7 @@ mod currency;
 mod date;
 mod entry;
 mod from_to_date;
-mod sequence_number;
+pub(super) mod sequence_number;
 mod transactions_summary;
 
 use crate::camt_053_message::creation_date_time::*;
@@ -22,8 +22,10 @@ use serde::{Deserialize, Serialize};
 pub(super) struct Statement {
     #[serde(rename = "Id")]
     identification: Identification,
-    //electronic_sequence_number: SequenceNumber,
-    //legal_sequence_number: Option<SequenceNumber>,
+    #[serde(rename = "ElctrncSeqNb")]
+    electronic_sequence_number: SequenceNumber,
+    #[serde(rename = "LglSeqNb")]
+    legal_sequence_number: Option<SequenceNumber>,
     //creation_date_time: CreationDateTime,
     //from_to_date: Option<FromToDate>,
     //account: Account,
@@ -32,7 +34,15 @@ pub(super) struct Statement {
 }
 
 impl Statement {
-    pub(super) fn new(identification: Identification) -> Self {
-        Self { identification }
+    pub(super) fn new(
+        identification: Identification,
+        electronic_sequence_number: SequenceNumber,
+        legal_sequence_number: Option<SequenceNumber>,
+    ) -> Self {
+        Self {
+            identification,
+            electronic_sequence_number,
+            legal_sequence_number,
+        }
     }
 }

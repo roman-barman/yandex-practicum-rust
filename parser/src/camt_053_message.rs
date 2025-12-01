@@ -34,6 +34,7 @@ mod tests {
     use super::*;
     use crate::camt_053_message::creation_date_time::*;
     use crate::camt_053_message::identification::*;
+    use crate::camt_053_message::statement::*;
     use chrono::NaiveDate;
 
     const DATA: &str = "
@@ -47,6 +48,8 @@ mod tests {
         </GrpHdr>
         <Stmt>
             <Id>XXX24Y4XXX1Y000000001</Id>
+            <ElctrncSeqNb>1</ElctrncSeqNb>
+            <LglSeqNb>1</LglSeqNb>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -73,7 +76,11 @@ mod tests {
         let statement = &message.statements[0];
         assert_eq!(
             *statement,
-            Statement::new(Identification::new("XXX24Y4XXX1Y000000001".to_string()))
+            Statement::new(
+                Identification::new("XXX24Y4XXX1Y000000001".to_string()),
+                sequence_number::SequenceNumber::new(1),
+                Some(sequence_number::SequenceNumber::new(1))
+            )
         );
     }
 }
