@@ -50,6 +50,7 @@ mod tests {
             <Id>XXX24Y4XXX1Y000000001</Id>
             <ElctrncSeqNb>1</ElctrncSeqNb>
             <LglSeqNb>1</LglSeqNb>
+            <CreDtTm>2023-04-20T23:24:33</CreDtTm>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -79,7 +80,13 @@ mod tests {
             Statement::new(
                 Identification::new("XXX24Y4XXX1Y000000001".to_string()),
                 sequence_number::SequenceNumber::new(1),
-                Some(sequence_number::SequenceNumber::new(1))
+                Some(sequence_number::SequenceNumber::new(1)),
+                CreationDateTime::new(
+                    NaiveDate::from_ymd_opt(2023, 4, 20)
+                        .unwrap()
+                        .and_hms_opt(23, 24, 33)
+                        .unwrap()
+                )
             )
         );
     }

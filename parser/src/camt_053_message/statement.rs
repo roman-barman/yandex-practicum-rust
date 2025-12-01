@@ -26,7 +26,8 @@ pub(super) struct Statement {
     electronic_sequence_number: SequenceNumber,
     #[serde(rename = "LglSeqNb")]
     legal_sequence_number: Option<SequenceNumber>,
-    //creation_date_time: CreationDateTime,
+    #[serde(rename = "CreDtTm")]
+    creation_date_time: CreationDateTime,
     //from_to_date: Option<FromToDate>,
     //account: Account,
     //balances: Vec<Balance>,
@@ -38,11 +39,13 @@ impl Statement {
         identification: Identification,
         electronic_sequence_number: SequenceNumber,
         legal_sequence_number: Option<SequenceNumber>,
+        creation_date_time: CreationDateTime,
     ) -> Self {
         Self {
             identification,
             electronic_sequence_number,
             legal_sequence_number,
+            creation_date_time,
         }
     }
 }
