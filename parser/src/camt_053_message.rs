@@ -34,6 +34,7 @@ mod tests {
     use super::*;
     use crate::camt_053_message::creation_date_time::*;
     use crate::camt_053_message::identification::*;
+    use crate::camt_053_message::statement::from_to_date::FromToDate;
     use crate::camt_053_message::statement::*;
     use chrono::NaiveDate;
 
@@ -51,6 +52,10 @@ mod tests {
             <ElctrncSeqNb>1</ElctrncSeqNb>
             <LglSeqNb>1</LglSeqNb>
             <CreDtTm>2023-04-20T23:24:33</CreDtTm>
+            <FrToDt>
+                <FrDtTm>2023-04-20T00:00:00</FrDtTm>
+                <ToDtTm>2023-04-20T23:59:59</ToDtTm>
+            </FrToDt>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -86,7 +91,17 @@ mod tests {
                         .unwrap()
                         .and_hms_opt(23, 24, 33)
                         .unwrap()
-                )
+                ),
+                Some(FromToDate::new(
+                    NaiveDate::from_ymd_opt(2023, 4, 20)
+                        .unwrap()
+                        .and_hms_opt(0, 0, 0)
+                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2023, 4, 20)
+                        .unwrap()
+                        .and_hms_opt(23, 59, 59)
+                        .unwrap()
+                ))
             )
         );
     }

@@ -5,7 +5,7 @@ mod credit_debit_identification;
 mod currency;
 mod date;
 mod entry;
-mod from_to_date;
+pub(super) mod from_to_date;
 pub(super) mod sequence_number;
 mod transactions_summary;
 
@@ -28,7 +28,8 @@ pub(super) struct Statement {
     legal_sequence_number: Option<SequenceNumber>,
     #[serde(rename = "CreDtTm")]
     creation_date_time: CreationDateTime,
-    //from_to_date: Option<FromToDate>,
+    #[serde(rename = "FrToDt")]
+    from_to_date: Option<FromToDate>,
     //account: Account,
     //balances: Vec<Balance>,
     //transactions_summary: Option<TransactionsSummary>,
@@ -40,12 +41,14 @@ impl Statement {
         electronic_sequence_number: SequenceNumber,
         legal_sequence_number: Option<SequenceNumber>,
         creation_date_time: CreationDateTime,
+        from_to_date: Option<FromToDate>,
     ) -> Self {
         Self {
             identification,
             electronic_sequence_number,
             legal_sequence_number,
             creation_date_time,
+            from_to_date,
         }
     }
 }
