@@ -1,8 +1,16 @@
 use crate::camt_053_message::statement::account::servicer::financial_institution_identification::*;
+use serde::{Deserialize, Serialize};
 
-mod financial_institution_identification;
+pub(crate) mod financial_institution_identification;
 
-#[derive(Debug, PartialEq)]
-pub(super) struct Servicer {
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub(crate) struct Servicer {
+    #[serde(rename = "FinInstnId")]
     identification: FinancialInstitutionIdentification,
+}
+
+impl Servicer {
+    pub(crate) fn new(identification: FinancialInstitutionIdentification) -> Self {
+        Self { identification }
+    }
 }
