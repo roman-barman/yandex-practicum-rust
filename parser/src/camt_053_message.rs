@@ -36,6 +36,7 @@ mod tests {
     use crate::camt_053_message::identification::*;
     use crate::camt_053_message::statement::*;
     use chrono::NaiveDate;
+    use rust_decimal::Decimal;
 
     const DATA: &str = "
 <Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:camt.053.001.02\"
@@ -87,6 +88,18 @@ mod tests {
                     </FinInstnId>
                 </Svcr>
             </Acct>
+            <Bal>
+                <Tp>
+                    <CdOrPrtry>
+                        <Cd>OPBD</Cd>
+                    </CdOrPrtry>
+                </Tp>
+                <Amt Ccy=\"DKK\">12345.67</Amt>
+                <CdtDbtInd>DBIT</CdtDbtInd>
+                <Dt>
+                    <Dt>2023-04-20</Dt>
+                </Dt>
+            </Bal>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -156,7 +169,13 @@ mod tests {
                     Some(account::servicer::Servicer::new(
                         account::servicer::financial_institution_identification::FinancialInstitutionIdentification::new(
                             Some("DABADKKK".to_string()))))
-                )
+                ),
+                vec![balance::Balance::new(
+                    balance::balance_type::BalanceType::new(balance::balance_type::CodeOrProprietary::Code("OPBD".to_string())),
+                    amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(1234567, 2)),
+                    credit_debit_identification::CreditDebitIdentification::new("DBIT".to_string()),
+                    date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())
+                )]
             )
         );
     }

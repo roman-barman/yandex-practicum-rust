@@ -1,9 +1,9 @@
 pub(super) mod account;
-mod amount;
-mod balance;
-mod credit_debit_identification;
+pub(super) mod amount;
+pub(super) mod balance;
+pub(super) mod credit_debit_identification;
 pub(super) mod currency;
-mod date;
+pub(super) mod date;
 mod entry;
 pub(super) mod from_to_date;
 pub(super) mod sequence_number;
@@ -32,7 +32,8 @@ pub(super) struct Statement {
     from_to_date: Option<FromToDate>,
     #[serde(rename = "Acct")]
     account: Account,
-    //balances: Vec<Balance>,
+    #[serde(rename = "Bal")]
+    balances: Vec<Balance>,
     //transactions_summary: Option<TransactionsSummary>,
 }
 
@@ -44,6 +45,7 @@ impl Statement {
         creation_date_time: CreationDateTime,
         from_to_date: Option<FromToDate>,
         account: Account,
+        balances: Vec<Balance>,
     ) -> Self {
         Self {
             identification,
@@ -52,6 +54,7 @@ impl Statement {
             creation_date_time,
             from_to_date,
             account,
+            balances,
         }
     }
 }

@@ -1,7 +1,10 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{NaiveDate, NaiveDateTime};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq)]
-pub(super) enum Date {
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub(crate) enum Date {
+    #[serde(rename = "Dt")]
     Date(NaiveDate),
-    DateTime(DateTime<Utc>),
+    #[serde(rename = "DtTm")]
+    DateTime(NaiveDateTime),
 }
