@@ -7,7 +7,7 @@ pub(super) mod date;
 mod entry;
 pub(super) mod from_to_date;
 pub(super) mod sequence_number;
-mod transactions_summary;
+pub(super) mod transactions_summary;
 
 use crate::camt_053_message::creation_date_time::*;
 use crate::camt_053_message::identification::*;
@@ -34,7 +34,8 @@ pub(super) struct Statement {
     account: Account,
     #[serde(rename = "Bal")]
     balances: Vec<Balance>,
-    //transactions_summary: Option<TransactionsSummary>,
+    #[serde(rename = "TxsSummry")]
+    transactions_summary: Option<TransactionsSummary>,
 }
 
 impl Statement {
@@ -46,6 +47,7 @@ impl Statement {
         from_to_date: Option<FromToDate>,
         account: Account,
         balances: Vec<Balance>,
+        transactions_summary: Option<TransactionsSummary>,
     ) -> Self {
         Self {
             identification,
@@ -55,6 +57,7 @@ impl Statement {
             from_to_date,
             account,
             balances,
+            transactions_summary,
         }
     }
 }

@@ -100,6 +100,21 @@ mod tests {
                     <Dt>2023-04-20</Dt>
                 </Dt>
             </Bal>
+            <TxsSummry>
+                <TtlNtries>
+                    <NbOfNtries>6</NbOfNtries>
+                    <TtlNetNtryAmt>343174.12</TtlNetNtryAmt>
+                    <CdtDbtInd>DBIT</CdtDbtInd>
+                </TtlNtries>
+                <TtlCdtNtries>
+                    <NbOfNtries>4</NbOfNtries>
+                    <Sum>3163.89</Sum>
+                </TtlCdtNtries>
+                <TtlDbtNtries>
+                    <NbOfNtries>2</NbOfNtries>
+                    <Sum>346338.01</Sum>
+                </TtlDbtNtries>
+            </TxsSummry>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -175,7 +190,15 @@ mod tests {
                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(1234567, 2)),
                     credit_debit_identification::CreditDebitIdentification::new("DBIT".to_string()),
                     date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())
-                )]
+                )],
+                Some(transactions_summary::TransactionsSummary::new(
+                    Some(transactions_summary::total_entries::TotalEntries::new(
+                        Some(6),
+                        Some(Decimal::new(34317412, 2)),
+                        Some(credit_debit_identification::CreditDebitIdentification::new("DBIT".to_string())))),
+                    Some(transactions_summary::total_credit_entries::TotalCreditEntries::new(Some(4), Some(Decimal::new(316389, 2)))),
+                    Some(transactions_summary::total_debit_entries::TotalDebitEntries::new(Some(2), Some(Decimal::new(34633801, 2))))
+                ))
             )
         );
     }
