@@ -4,7 +4,7 @@ pub(super) mod balance;
 pub(super) mod credit_debit_identification;
 pub(super) mod currency;
 pub(super) mod date;
-mod entry;
+pub(super) mod entry;
 pub(super) mod from_to_date;
 pub(super) mod sequence_number;
 pub(super) mod transactions_summary;
@@ -13,6 +13,7 @@ use crate::camt_053_message::creation_date_time::*;
 use crate::camt_053_message::identification::*;
 use crate::camt_053_message::statement::account::*;
 use crate::camt_053_message::statement::balance::*;
+use crate::camt_053_message::statement::entry::*;
 use crate::camt_053_message::statement::from_to_date::*;
 use crate::camt_053_message::statement::sequence_number::*;
 use crate::camt_053_message::statement::transactions_summary::*;
@@ -36,6 +37,8 @@ pub(super) struct Statement {
     balances: Vec<Balance>,
     #[serde(rename = "TxsSummry")]
     transactions_summary: Option<TransactionsSummary>,
+    #[serde(rename = "Ntry")]
+    entries: Option<Vec<Entry>>,
 }
 
 impl Statement {
@@ -48,6 +51,7 @@ impl Statement {
         account: Account,
         balances: Vec<Balance>,
         transactions_summary: Option<TransactionsSummary>,
+        entries: Option<Vec<Entry>>,
     ) -> Self {
         Self {
             identification,
@@ -58,6 +62,7 @@ impl Statement {
             account,
             balances,
             transactions_summary,
+            entries,
         }
     }
 }

@@ -115,6 +115,35 @@ mod tests {
                     <Sum>346338.01</Sum>
                 </TtlDbtNtries>
             </TxsSummry>
+            <Ntry>
+                <NtryRef>1</NtryRef>
+                <Amt Ccy=\"DKK\">591.15</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <Sts>BOOK</Sts>
+                 <BookgDt>
+                    <Dt>2023-04-20</Dt>
+                </BookgDt>
+                <ValDt>
+                    <Dt>2023-04-20</Dt>
+                </ValDt>
+                <AcctSvcrRef>012X123456789012</AcctSvcrRef>
+                <BkTxCd>
+                    <Domn>
+                        <Cd>PMNT</Cd>
+                        <Fmly>
+                            <Cd>RCDT</Cd>
+                            <SubFmlyCd>XBCT</SubFmlyCd>
+                        </Fmly>
+                    </Domn>
+                    <Prtry>
+                        <Cd>BETAL. 3825-0123456789</Cd>
+                        <Issr>DBA</Issr>
+                    </Prtry>
+                </BkTxCd>
+                <AddtlInfInd>
+                    <MsgNmId>O1XXXXXXX67X1X</MsgNmId>
+                </AddtlInfInd>
+            </Ntry>
         </Stmt>
     </BkToCstmrStmt>
 </Document>";
@@ -198,7 +227,29 @@ mod tests {
                         Some(credit_debit_identification::CreditDebitIdentification::new("DBIT".to_string())))),
                     Some(transactions_summary::total_credit_entries::TotalCreditEntries::new(Some(4), Some(Decimal::new(316389, 2)))),
                     Some(transactions_summary::total_debit_entries::TotalDebitEntries::new(Some(2), Some(Decimal::new(34633801, 2))))
-                ))
+                )),
+                Some(vec![entry::Entry::new(
+                    Some(entry::entry_reference::EntryReference::new("1".to_string())),
+                    amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2)),
+                    credit_debit_identification::CreditDebitIdentification::new("CRDT".to_string()),
+                    entry::status::Status::new("BOOK".to_string()),
+                    Some(date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())),
+                    Some(date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())),
+                    Some(entry::account_servicer_reference::AccountServicerReference::new("012X123456789012".to_string())),
+                    entry::bank_transaction_code::BankTransactionCode::new(
+                        Some(entry::bank_transaction_code::Domain::new(
+                            "PMNT".to_string(),
+                            entry::bank_transaction_code::Family::new("RCDT".to_string(), "XBCT".to_string())
+                        )),
+                        Some(entry::bank_transaction_code::Proprietary::new(
+                            "BETAL. 3825-0123456789".to_string(),
+                            Some("DBA".to_string())
+                        ))
+                    ),
+                    Some(entry::additional_information_indicator::AdditionalInformationIndicator::new(
+                        Some(Identification::new("O1XXXXXXX67X1X".to_string()))
+                    ))
+                )])
             )
         );
     }
