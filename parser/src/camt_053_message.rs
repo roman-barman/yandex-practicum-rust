@@ -1,9 +1,11 @@
+use crate::camt_053_message::error::Camt053MessageReadError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
 use serde::{Deserialize, Serialize};
 use std::io::Read;
 
 mod creation_date_time;
+mod error;
 mod group_header;
 mod identification;
 mod statement;
@@ -17,8 +19,8 @@ pub struct Camt053Message {
 }
 
 impl Camt053Message {
-    pub fn read_from<T: Read>(reader: T) -> Result<Self, String> {
-        let result: Document = serde_xml_rs::from_reader(reader).unwrap();
+    pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageReadError> {
+        let result: Document = serde_xml_rs::from_reader(reader)?;
         Ok(result.camt053message)
     }
 }
