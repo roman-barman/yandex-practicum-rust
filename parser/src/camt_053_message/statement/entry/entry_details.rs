@@ -1,14 +1,17 @@
 pub(crate) mod amount_details;
 pub(crate) mod references;
 pub(crate) mod related_agents;
+pub(crate) mod related_dates;
 pub(crate) mod related_parties;
+pub(crate) mod remittance_information;
 
 use crate::camt_053_message::entry::entry_details::references::References;
 use crate::camt_053_message::entry::entry_details::related_agents::RelatedAgents;
+use crate::camt_053_message::entry::entry_details::related_dates::RelatedDates;
+use crate::camt_053_message::entry::entry_details::remittance_information::RemittanceInformation;
 use crate::camt_053_message::entry::entry_details::{
     amount_details::AmountDetails, related_parties::RelatedParties,
 };
-use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -61,32 +64,6 @@ impl TransactionDetails {
             remittance_information,
             related_dates,
             additional_information,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct RemittanceInformation {
-    #[serde(rename = "Ustrd")]
-    unstructured: Option<Vec<String>>,
-}
-
-impl RemittanceInformation {
-    pub(crate) fn new(unstructured: Option<Vec<String>>) -> Self {
-        Self { unstructured }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct RelatedDates {
-    #[serde(rename = "AccptncDtTm")]
-    acceptance_date_time: Option<NaiveDateTime>,
-}
-
-impl RelatedDates {
-    pub(crate) fn new(acceptance_date_time: Option<NaiveDateTime>) -> Self {
-        Self {
-            acceptance_date_time,
         }
     }
 }

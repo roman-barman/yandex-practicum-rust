@@ -357,10 +357,10 @@ mod tests {
                                     )
                                 ))
                             )),
-                            Some(entry::entry_details::RemittanceInformation::new(
+                            Some(entry::entry_details::remittance_information::RemittanceInformation::new(
                                 Some(vec!["Unstructured remittance information".to_string()])
                             )),
-                            Some(entry::entry_details::RelatedDates::new(
+                            Some(entry::entry_details::related_dates::RelatedDates::new(
                                 Some(NaiveDate::from_ymd_opt(2023, 4, 18)
                                     .unwrap()
                                     .and_hms_opt(1, 1, 1)
