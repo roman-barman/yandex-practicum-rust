@@ -316,13 +316,13 @@ mod tests {
                                 Some(Identification::new("NOTPROVIDED".to_string())),
                                 Some(Identification::new("3825-0123456789".to_string()))
                             )),
-                            Some(entry::entry_details::AmountDetails::new(
-                                Some(entry::entry_details::InstructedAmount::new(
+                            Some(entry::entry_details::amount_details::AmountDetails::new(
+                                Some(entry::entry_details::amount_details::InstructedAmount::new(
                                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2)))),
-                                Some(entry::entry_details::TransactionAmount::new(
+                                Some(entry::entry_details::amount_details::TransactionAmount::new(
                                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2))
                                 )),
-                                Some(vec![entry::entry_details::ProprietaryAmount::new(
+                                Some(vec![entry::entry_details::amount_details::ProprietaryAmount::new(
                                     "IBS".to_string(),
                                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2))
                                 )])

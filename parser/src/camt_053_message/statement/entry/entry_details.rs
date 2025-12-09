@@ -1,9 +1,10 @@
+pub(crate) mod amount_details;
 pub(crate) mod references;
 
+use crate::camt_053_message::entry::entry_details::amount_details::AmountDetails;
 use crate::camt_053_message::financial_institution_identification::FinancialInstitutionIdentification;
 use crate::camt_053_message::name::Name;
 use crate::camt_053_message::postal_address::PostalAddress;
-use crate::camt_053_message::statement::amount::Amount;
 use crate::camt_053_message::{
     account_identification::AccountIdentification, entry::entry_details::references::References,
 };
@@ -60,71 +61,6 @@ impl TransactionDetails {
             remittance_information,
             related_dates,
             additional_information,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct AmountDetails {
-    #[serde(rename = "InstdAmt")]
-    instructed_amount: Option<InstructedAmount>,
-    #[serde(rename = "TxAmt")]
-    transaction_amount: Option<TransactionAmount>,
-    #[serde(rename = "PrtryAmt")]
-    proprietary_amount: Option<Vec<ProprietaryAmount>>,
-}
-
-impl AmountDetails {
-    pub(crate) fn new(
-        instructed_amount: Option<InstructedAmount>,
-        transaction_amount: Option<TransactionAmount>,
-        proprietary_amount: Option<Vec<ProprietaryAmount>>,
-    ) -> Self {
-        Self {
-            instructed_amount,
-            transaction_amount,
-            proprietary_amount,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct InstructedAmount {
-    #[serde(rename = "Amt")]
-    amount: Amount,
-}
-
-impl InstructedAmount {
-    pub(crate) fn new(amount: Amount) -> Self {
-        Self { amount }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct TransactionAmount {
-    #[serde(rename = "Amt")]
-    amount: Amount,
-}
-
-impl TransactionAmount {
-    pub(crate) fn new(amount: Amount) -> Self {
-        Self { amount }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct ProprietaryAmount {
-    #[serde(rename = "Tp")]
-    amount_type: String,
-    #[serde(rename = "Amt")]
-    amount: Amount,
-}
-
-impl ProprietaryAmount {
-    pub(crate) fn new(amount_type: String, amount: Amount) -> Self {
-        Self {
-            amount_type,
-            amount,
         }
     }
 }
