@@ -1,12 +1,13 @@
 pub(crate) mod amount_details;
 pub(crate) mod references;
+pub(crate) mod related_agents;
 pub(crate) mod related_parties;
 
 use crate::camt_053_message::entry::entry_details::references::References;
+use crate::camt_053_message::entry::entry_details::related_agents::RelatedAgents;
 use crate::camt_053_message::entry::entry_details::{
     amount_details::AmountDetails, related_parties::RelatedParties,
 };
-use crate::camt_053_message::financial_institution_identification::FinancialInstitutionIdentification;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
@@ -61,30 +62,6 @@ impl TransactionDetails {
             related_dates,
             additional_information,
         }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct RelatedAgents {
-    #[serde(rename = "DbtrAgt")]
-    debtor_agent: Option<DebtorAgent>,
-}
-
-impl RelatedAgents {
-    pub(crate) fn new(debtor_agent: Option<DebtorAgent>) -> Self {
-        Self { debtor_agent }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct DebtorAgent {
-    #[serde(rename = "FinInstnId")]
-    identification: FinancialInstitutionIdentification,
-}
-
-impl DebtorAgent {
-    pub(crate) fn new(identification: FinancialInstitutionIdentification) -> Self {
-        Self { identification }
     }
 }
 

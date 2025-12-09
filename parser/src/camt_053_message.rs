@@ -343,8 +343,8 @@ mod tests {
                                 Some(postal_address::PostalAddress::new(None, None, None, None, None,
                                     Some(vec!["First address line".to_string()]))))),
                             )),
-                            Some(entry::entry_details::RelatedAgents::new(
-                                Some(entry::entry_details::DebtorAgent::new(
+                            Some(entry::entry_details::related_agents::RelatedAgents::new(
+                                Some(entry::entry_details::related_agents::DebtorAgent::new(
                                     financial_institution_identification::FinancialInstitutionIdentification::new(
                                         Some(financial_institution_identification::Bic::new("SWEDSESS".to_string())),
                                         Some(name::Name::new("SWEDBANK AB (PUBL)".to_string())),
