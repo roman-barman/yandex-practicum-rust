@@ -312,7 +312,7 @@ mod tests {
                     )),
                     Some(vec![entry::entry_details::EntryDetails::new(
                         Some(vec![entry::entry_details::TransactionDetails::new(
-                            Some(entry::entry_details::References::new(
+                            Some(entry::entry_details::references::References::new(
                                 Some(Identification::new("NOTPROVIDED".to_string())),
                                 Some(Identification::new("3825-0123456789".to_string()))
                             )),

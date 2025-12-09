@@ -1,8 +1,12 @@
-use crate::camt_053_message::account_identification::AccountIdentification;
+pub(crate) mod references;
+
 use crate::camt_053_message::financial_institution_identification::FinancialInstitutionIdentification;
 use crate::camt_053_message::name::Name;
+use crate::camt_053_message::postal_address::PostalAddress;
 use crate::camt_053_message::statement::amount::Amount;
-use crate::camt_053_message::{identification::Identification, postal_address::PostalAddress};
+use crate::camt_053_message::{
+    account_identification::AccountIdentification, entry::entry_details::references::References,
+};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
@@ -56,26 +60,6 @@ impl TransactionDetails {
             remittance_information,
             related_dates,
             additional_information,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct References {
-    #[serde(rename = "EndToEndId")]
-    end_to_end_identification: Option<Identification>,
-    #[serde(rename = "TxId")]
-    transaction_identification: Option<Identification>,
-}
-
-impl References {
-    pub(crate) fn new(
-        end_to_end_identification: Option<Identification>,
-        transaction_identification: Option<Identification>,
-    ) -> Self {
-        Self {
-            end_to_end_identification,
-            transaction_identification,
         }
     }
 }
