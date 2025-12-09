@@ -12,6 +12,8 @@ pub(crate) struct PostalAddress {
     town_name: Option<String>,
     #[serde(rename = "Ctry")]
     country: Option<String>,
+    #[serde(rename = "AdrLine")]
+    address_line: Option<Vec<String>>,
 }
 
 impl PostalAddress {
@@ -21,6 +23,7 @@ impl PostalAddress {
         post_code: Option<String>,
         town_name: Option<String>,
         country: Option<String>,
+        address_line: Option<Vec<String>>,
     ) -> Self {
         Self {
             street,
@@ -28,6 +31,7 @@ impl PostalAddress {
             post_code,
             town_name,
             country,
+            address_line,
         }
     }
 }

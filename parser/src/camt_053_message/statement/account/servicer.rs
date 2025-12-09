@@ -1,7 +1,5 @@
-use crate::camt_053_message::statement::account::servicer::financial_institution_identification::*;
+use crate::camt_053_message::statement::financial_institution_identification::*;
 use serde::{Deserialize, Serialize};
-
-pub(crate) mod financial_institution_identification;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct Servicer {

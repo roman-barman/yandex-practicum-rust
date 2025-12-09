@@ -34,7 +34,6 @@ mod tests {
     use super::*;
     use crate::camt_053_message::creation_date_time::*;
     use crate::camt_053_message::identification::*;
-    use crate::camt_053_message::statement::*;
     use chrono::NaiveDate;
     use rust_decimal::Decimal;
 
@@ -143,6 +142,66 @@ mod tests {
                 <AddtlInfInd>
                     <MsgNmId>O1XXXXXXX67X1X</MsgNmId>
                 </AddtlInfInd>
+                <NtryDtls>
+                    <TxDtls>
+                        <Refs>
+                            <EndToEndId>NOTPROVIDED</EndToEndId>
+                            <TxId>3825-0123456789</TxId>
+                        </Refs>
+                        <AmtDtls>
+                            <InstdAmt>
+                                <Amt Ccy=\"DKK\">591.15</Amt>
+                            </InstdAmt>
+                            <TxAmt>
+                                <Amt Ccy=\"DKK\">591.15</Amt>
+                            </TxAmt>
+                            <PrtryAmt>
+                                <Tp>IBS</Tp>
+                                <Amt Ccy=\"DKK\">591.15</Amt>
+                            </PrtryAmt>
+                        </AmtDtls>
+                        <RltdPties>
+                            <Dbtr>
+                                <Nm>Debtor</Nm>
+                                <PstlAdr>
+                                    <Ctry>SE</Ctry>
+                                    <AdrLine>First addressline</AdrLine>
+                                </PstlAdr>
+                            </Dbtr>
+                            <DbtrAcct>
+                                <Id>
+                                    <IBAN>SE5180000810512345678901</IBAN>
+                                </Id>
+                            </DbtrAcct>
+                            <Cdtr>
+                                <Nm>Creditor</Nm>
+                                <PstlAdr>
+                                    <AdrLine>First address line</AdrLine>
+                                </PstlAdr>
+                            </Cdtr>
+                        </RltdPties>
+                        <RltdAgts>
+                            <DbtrAgt>
+                                <FinInstnId>
+                                    <BIC>SWEDSESS</BIC>
+                                    <Nm>SWEDBANK AB (PUBL)</Nm>
+                                    <PstlAdr>
+                                        <AdrLine>First address line</AdrLine>
+                                        <AdrLine>Second address line</AdrLine>
+                                        <AdrLine>Third address line</AdrLine>
+                                    </PstlAdr>
+                                </FinInstnId>
+                            </DbtrAgt>
+                        </RltdAgts>
+                        <RmtInf>
+                            <Ustrd>Unstructured remittance information</Ustrd>
+                        </RmtInf>
+                        <RltdDts>
+                            <AccptncDtTm>2023-04-18T01:01:01</AccptncDtTm>
+                        </RltdDts>
+                        <AddtlTxInf>Beregnede gebyrer: DKK 38,00 Gebyr konto: 1234567890</AddtlTxInf>
+                    </TxDtls>
+                </NtryDtls>
             </Ntry>
         </Stmt>
     </BkToCstmrStmt>
@@ -191,19 +250,20 @@ mod tests {
                         .unwrap()
                 )),
                 account::Account::new(
-                    account::account_identification::AccountIdentification::IBAN(
+                    account_identification::AccountIdentification::IBAN(
                         Identification::new("DK8030000001234567".to_string())
                     ),
                     currency::Currency::new("DKK".to_string()),
-                    Some(account::name::Name::new("Danske Corporate".to_string())),
+                    Some(name::Name::new("Danske Corporate".to_string())),
                     Some(account::owner::Owner::new(
-                        Some(account::name::Name::new("Account owner".to_string())),
-                        Some(account::postal_address::PostalAddress::new(
+                        Some(name::Name::new("Account owner".to_string())),
+                        Some(postal_address::PostalAddress::new(
                             Some("Streetname".to_string()),
                             Some("20".to_string()),
                             Some("1234".to_string()),
                             Some("Townname".to_string()),
-                            Some("DK".to_string()))),
+                            Some("DK".to_string()),
+                            None)),
                         Some(account::owner::owner_identification::OwnerIdentification::Organization(
                             account::owner::owner_identification::OrganizationIdentification::Other{
                                 id: Identification::new("0012345678".to_string()),
@@ -211,8 +271,9 @@ mod tests {
                             })))
                     ),
                     Some(account::servicer::Servicer::new(
-                        account::servicer::financial_institution_identification::FinancialInstitutionIdentification::new(
-                            Some("DABADKKK".to_string()))))
+                        financial_institution_identification::FinancialInstitutionIdentification::new(
+                            Some(financial_institution_identification::Bic::new("DABADKKK".to_string())),
+                            None, None)))
                 ),
                 vec![balance::Balance::new(
                     balance::balance_type::BalanceType::new(balance::balance_type::CodeOrProprietary::Code("OPBD".to_string())),
@@ -248,7 +309,66 @@ mod tests {
                     ),
                     Some(entry::additional_information_indicator::AdditionalInformationIndicator::new(
                         Some(Identification::new("O1XXXXXXX67X1X".to_string()))
-                    ))
+                    )),
+                    Some(vec![entry::entry_details::EntryDetails::new(
+                        Some(vec![entry::entry_details::TransactionDetails::new(
+                            Some(entry::entry_details::References::new(
+                                Some(Identification::new("NOTPROVIDED".to_string())),
+                                Some(Identification::new("3825-0123456789".to_string()))
+                            )),
+                            Some(entry::entry_details::AmountDetails::new(
+                                Some(entry::entry_details::InstructedAmount::new(
+                                    amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2)))),
+                                Some(entry::entry_details::TransactionAmount::new(
+                                    amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2))
+                                )),
+                                Some(vec![entry::entry_details::ProprietaryAmount::new(
+                                    "IBS".to_string(),
+                                    amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2))
+                                )])
+                            )),
+                            Some(entry::entry_details::RelatedParties::new(
+                                Some(entry::entry_details::Debtor::new(
+                                    Some(name::Name::new("Debtor".to_string())),
+                                Some(postal_address::PostalAddress::new(None, None, None, None,
+                                    Some("SE".to_string()),
+                                    Some(vec!["First addressline".to_string()]))))),
+                                Some(entry::entry_details::DebtorAccount::new(
+                                    account_identification::AccountIdentification::IBAN(
+                                        identification::Identification::new("SE5180000810512345678901".to_string())
+                                    )
+                                )),
+                                Some(entry::entry_details::Creditor::new(
+                                    Some(name::Name::new("Creditor".to_string())),
+                                Some(postal_address::PostalAddress::new(None, None, None, None, None,
+                                    Some(vec!["First address line".to_string()]))))),
+                            )),
+                            Some(entry::entry_details::RelatedAgents::new(
+                                Some(entry::entry_details::DebtorAgent::new(
+                                    financial_institution_identification::FinancialInstitutionIdentification::new(
+                                        Some(financial_institution_identification::Bic::new("SWEDSESS".to_string())),
+                                        Some(name::Name::new("SWEDBANK AB (PUBL)".to_string())),
+                                        Some(postal_address::PostalAddress::new(None, None, None, None, None,
+                                            Some(vec![
+                                                "First address line".to_string(),
+                                                "Second address line".to_string(),
+                                                "Third address line".to_string()
+                                            ])))
+                                    )
+                                ))
+                            )),
+                            Some(entry::entry_details::RemittanceInformation::new(
+                                Some(vec!["Unstructured remittance information".to_string()])
+                            )),
+                            Some(entry::entry_details::RelatedDates::new(
+                                Some(NaiveDate::from_ymd_opt(2023, 4, 18)
+                                    .unwrap()
+                                    .and_hms_opt(1, 1, 1)
+                                    .unwrap())
+                            )),
+                            Some("Beregnede gebyrer: DKK 38,00 Gebyr konto: 1234567890".to_string())
+                        )])
+                    )])
                 )])
             )
         );

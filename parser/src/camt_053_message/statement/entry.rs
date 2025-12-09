@@ -4,6 +4,7 @@ use crate::camt_053_message::statement::date::*;
 use crate::camt_053_message::statement::entry::account_servicer_reference::*;
 use crate::camt_053_message::statement::entry::additional_information_indicator::AdditionalInformationIndicator;
 use crate::camt_053_message::statement::entry::bank_transaction_code::*;
+use crate::camt_053_message::statement::entry::entry_details::EntryDetails;
 use crate::camt_053_message::statement::entry::entry_reference::*;
 use crate::camt_053_message::statement::entry::status::*;
 use serde::{Deserialize, Serialize};
@@ -11,6 +12,7 @@ use serde::{Deserialize, Serialize};
 pub(crate) mod account_servicer_reference;
 pub(crate) mod additional_information_indicator;
 pub(crate) mod bank_transaction_code;
+pub(crate) mod entry_details;
 pub(crate) mod entry_reference;
 pub(crate) mod status;
 
@@ -34,6 +36,8 @@ pub(crate) struct Entry {
     bank_transaction_code: BankTransactionCode,
     #[serde(rename = "AddtlInfInd")]
     additional_information_indicator: Option<AdditionalInformationIndicator>,
+    #[serde(rename = "NtryDtls")]
+    entry_details: Option<Vec<EntryDetails>>,
 }
 
 impl Entry {
@@ -47,6 +51,7 @@ impl Entry {
         account_servicer_reference: Option<AccountServicerReference>,
         bank_transaction_code: BankTransactionCode,
         additional_information_indicator: Option<AdditionalInformationIndicator>,
+        entry_details: Option<Vec<EntryDetails>>,
     ) -> Self {
         Self {
             reference,
@@ -58,6 +63,7 @@ impl Entry {
             account_servicer_reference,
             bank_transaction_code,
             additional_information_indicator,
+            entry_details,
         }
     }
 }

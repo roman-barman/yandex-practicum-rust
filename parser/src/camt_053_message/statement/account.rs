@@ -1,14 +1,11 @@
-use crate::camt_053_message::statement::account::account_identification::*;
-use crate::camt_053_message::statement::account::name::*;
 use crate::camt_053_message::statement::account::owner::*;
 use crate::camt_053_message::statement::account::servicer::*;
+use crate::camt_053_message::statement::account_identification::*;
 use crate::camt_053_message::statement::currency::*;
+use crate::camt_053_message::statement::name::*;
 use serde::{Deserialize, Serialize};
 
-pub(crate) mod account_identification;
-pub(crate) mod name;
 pub(crate) mod owner;
-pub(crate) mod postal_address;
 pub(crate) mod servicer;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

@@ -1,6 +1,6 @@
-use crate::camt_053_message::statement::account::name::*;
 use crate::camt_053_message::statement::account::owner::owner_identification::*;
-use crate::camt_053_message::statement::account::postal_address::*;
+use crate::camt_053_message::statement::name::*;
+use crate::camt_053_message::statement::postal_address::*;
 use serde::{Deserialize, Serialize};
 
 pub(crate) mod owner_identification;

@@ -1,11 +1,15 @@
 pub(super) mod account;
+pub(super) mod account_identification;
 pub(super) mod amount;
 pub(super) mod balance;
 pub(super) mod credit_debit_identification;
 pub(super) mod currency;
 pub(super) mod date;
 pub(super) mod entry;
+pub(super) mod financial_institution_identification;
 pub(super) mod from_to_date;
+pub(super) mod name;
+pub(super) mod postal_address;
 pub(super) mod sequence_number;
 pub(super) mod transactions_summary;
 
