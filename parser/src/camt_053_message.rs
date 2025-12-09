@@ -327,18 +327,18 @@ mod tests {
                                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2))
                                 )])
                             )),
-                            Some(entry::entry_details::RelatedParties::new(
-                                Some(entry::entry_details::Debtor::new(
+                            Some(entry::entry_details::related_parties::RelatedParties::new(
+                                Some(entry::entry_details::related_parties::Debtor::new(
                                     Some(name::Name::new("Debtor".to_string())),
                                 Some(postal_address::PostalAddress::new(None, None, None, None,
                                     Some("SE".to_string()),
                                     Some(vec!["First addressline".to_string()]))))),
-                                Some(entry::entry_details::DebtorAccount::new(
+                                Some(entry::entry_details::related_parties::DebtorAccount::new(
                                     account_identification::AccountIdentification::IBAN(
                                         identification::Identification::new("SE5180000810512345678901".to_string())
                                     )
                                 )),
-                                Some(entry::entry_details::Creditor::new(
+                                Some(entry::entry_details::related_parties::Creditor::new(
                                     Some(name::Name::new("Creditor".to_string())),
                                 Some(postal_address::PostalAddress::new(None, None, None, None, None,
                                     Some(vec!["First address line".to_string()]))))),

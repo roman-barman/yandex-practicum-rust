@@ -1,13 +1,12 @@
 pub(crate) mod amount_details;
 pub(crate) mod references;
+pub(crate) mod related_parties;
 
-use crate::camt_053_message::entry::entry_details::amount_details::AmountDetails;
-use crate::camt_053_message::financial_institution_identification::FinancialInstitutionIdentification;
-use crate::camt_053_message::name::Name;
-use crate::camt_053_message::postal_address::PostalAddress;
-use crate::camt_053_message::{
-    account_identification::AccountIdentification, entry::entry_details::references::References,
+use crate::camt_053_message::entry::entry_details::references::References;
+use crate::camt_053_message::entry::entry_details::{
+    amount_details::AmountDetails, related_parties::RelatedParties,
 };
+use crate::camt_053_message::financial_institution_identification::FinancialInstitutionIdentification;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
@@ -61,76 +60,6 @@ impl TransactionDetails {
             remittance_information,
             related_dates,
             additional_information,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct RelatedParties {
-    #[serde(rename = "Dbtr")]
-    debtor: Option<Debtor>,
-    #[serde(rename = "DbtrAcct")]
-    debtor_account: Option<DebtorAccount>,
-    #[serde(rename = "Cdtr")]
-    creditor: Option<Creditor>,
-}
-
-impl RelatedParties {
-    pub(crate) fn new(
-        debtor: Option<Debtor>,
-        debtor_account: Option<DebtorAccount>,
-        creditor: Option<Creditor>,
-    ) -> Self {
-        Self {
-            debtor,
-            debtor_account,
-            creditor,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct Debtor {
-    #[serde(rename = "Nm")]
-    name: Option<Name>,
-    #[serde(rename = "PstlAdr")]
-    postal_address: Option<PostalAddress>,
-}
-
-impl Debtor {
-    pub(crate) fn new(name: Option<Name>, postal_address: Option<PostalAddress>) -> Self {
-        Self {
-            name,
-            postal_address,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct DebtorAccount {
-    #[serde(rename = "Id")]
-    identification: AccountIdentification,
-}
-
-impl DebtorAccount {
-    pub(crate) fn new(identification: AccountIdentification) -> Self {
-        Self { identification }
-    }
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) struct Creditor {
-    #[serde(rename = "Nm")]
-    name: Option<Name>,
-    #[serde(rename = "PstlAdr")]
-    postal_address: Option<PostalAddress>,
-}
-
-impl Creditor {
-    pub(crate) fn new(name: Option<Name>, postal_address: Option<PostalAddress>) -> Self {
-        Self {
-            name,
-            postal_address,
         }
     }
 }
