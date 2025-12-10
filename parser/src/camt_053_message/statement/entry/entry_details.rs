@@ -12,12 +12,26 @@ use crate::camt_053_message::entry::entry_details::remittance_information::Remit
 use crate::camt_053_message::entry::entry_details::{
     amount_details::AmountDetails, related_parties::RelatedParties,
 };
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct EntryDetails {
     #[serde(rename = "TxDtls")]
     transaction_details: Option<Vec<TransactionDetails>>,
+}
+
+impl Display for EntryDetails {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(transaction_details) = &self.transaction_details {
+            for transaction_detail in transaction_details {
+                writeln!(f, "- Transaction detail")?;
+                write!(indented(f), "{}", transaction_detail)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl EntryDetails {
@@ -44,6 +58,39 @@ pub(crate) struct TransactionDetails {
     related_dates: Option<RelatedDates>,
     #[serde(rename = "AddtlTxInf")]
     additional_information: Option<String>,
+}
+
+impl Display for TransactionDetails {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(references) = &self.references {
+            writeln!(f, "- References")?;
+            write!(indented(f), "{}", references)?;
+        }
+        if let Some(amount_details) = &self.amount_details {
+            writeln!(f, "- Amount details")?;
+            write!(indented(f), "{}", amount_details)?;
+        }
+        if let Some(related_parties) = &self.related_parties {
+            writeln!(f, "- Related parties")?;
+            write!(indented(f), "{}", related_parties)?;
+        }
+        if let Some(related_agents) = &self.related_agents {
+            writeln!(f, "- Related agents")?;
+            write!(indented(f), "{}", related_agents)?;
+        }
+        if let Some(remittance_information) = &self.remittance_information {
+            writeln!(f, "- Remittance information")?;
+            write!(indented(f), "{}", remittance_information)?;
+        }
+        if let Some(related_dates) = &self.related_dates {
+            writeln!(f, "- Related dates")?;
+            write!(indented(f), "{}", related_dates)?;
+        }
+        if let Some(additional_information) = &self.additional_information {
+            writeln!(f, "- Additional information: {}", additional_information)?;
+        }
+        Ok(())
+    }
 }
 
 impl TransactionDetails {

@@ -1,4 +1,6 @@
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct BankTransactionCode {
@@ -6,6 +8,20 @@ pub(crate) struct BankTransactionCode {
     domain: Option<Domain>,
     #[serde(rename = "Prtry")]
     proprietary: Option<Proprietary>,
+}
+
+impl Display for BankTransactionCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(domain) = &self.domain {
+            writeln!(f, "- Domain")?;
+            write!(indented(f), "{}", domain)?;
+        }
+        if let Some(proprietary) = &self.proprietary {
+            writeln!(f, "- Proprietary")?;
+            write!(indented(f), "{}", proprietary)?;
+        }
+        Ok(())
+    }
 }
 
 impl BankTransactionCode {
@@ -25,6 +41,15 @@ pub(crate) struct Domain {
     family: Family,
 }
 
+impl Display for Domain {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Code: {}", self.code)?;
+        writeln!(f, "- Family")?;
+        write!(indented(f), "{}", self.family)?;
+        Ok(())
+    }
+}
+
 impl Domain {
     pub(crate) fn new(code: String, family: Family) -> Self {
         Self { code, family }
@@ -37,6 +62,14 @@ pub(crate) struct Family {
     code: String,
     #[serde(rename = "SubFmlyCd")]
     sub_family_code: String,
+}
+
+impl Display for Family {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Family code: {}", self.code)?;
+        writeln!(f, "- Sub-family code: {}", self.sub_family_code)?;
+        Ok(())
+    }
 }
 
 impl Family {
@@ -54,6 +87,16 @@ pub(crate) struct Proprietary {
     code: String,
     #[serde(rename = "Issr")]
     issuer: Option<String>,
+}
+
+impl Display for Proprietary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Proprietary code: {}", self.code)?;
+        if let Some(issuer) = &self.issuer {
+            writeln!(f, "- Issuer: {}", issuer)?;
+        }
+        Ok(())
+    }
 }
 
 impl Proprietary {

@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct TotalDebitEntries {
@@ -8,6 +9,18 @@ pub(crate) struct TotalDebitEntries {
     #[serde(rename = "Sum")]
     #[serde(with = "rust_decimal::serde::str_option")]
     sum: Option<Decimal>,
+}
+
+impl Display for TotalDebitEntries {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(number) = &self.number {
+            writeln!(f, "- Number of debit entries: {}", number)?;
+        }
+        if let Some(sum) = &self.sum {
+            writeln!(f, "- Total debit amount: {}", sum)?;
+        }
+        Ok(())
+    }
 }
 
 impl TotalDebitEntries {

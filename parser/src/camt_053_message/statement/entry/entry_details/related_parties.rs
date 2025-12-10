@@ -1,4 +1,6 @@
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 use crate::camt_053_message::{
     account_identification::AccountIdentification, name::Name, postal_address::PostalAddress,
@@ -12,6 +14,24 @@ pub(crate) struct RelatedParties {
     debtor_account: Option<DebtorAccount>,
     #[serde(rename = "Cdtr")]
     creditor: Option<Creditor>,
+}
+
+impl Display for RelatedParties {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(debtor) = &self.debtor {
+            writeln!(f, "- Debtor")?;
+            write!(indented(f), "{}", debtor)?;
+        }
+        if let Some(debtor_account) = &self.debtor_account {
+            writeln!(f, "- Debtor account")?;
+            write!(indented(f), "{}", debtor_account)?;
+        }
+        if let Some(creditor) = &self.creditor {
+            writeln!(f, "- Creditor")?;
+            write!(indented(f), "{}", creditor)?;
+        }
+        Ok(())
+    }
 }
 
 impl RelatedParties {
@@ -36,6 +56,19 @@ pub(crate) struct Debtor {
     postal_address: Option<PostalAddress>,
 }
 
+impl Display for Debtor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(name) = &self.name {
+            writeln!(f, "- Name: {}", name)?;
+        }
+        if let Some(postal_address) = &self.postal_address {
+            writeln!(f, "- Postal address")?;
+            write!(indented(f), "{}", postal_address)?;
+        }
+        Ok(())
+    }
+}
+
 impl Debtor {
     pub(crate) fn new(name: Option<Name>, postal_address: Option<PostalAddress>) -> Self {
         Self {
@@ -51,6 +84,13 @@ pub(crate) struct DebtorAccount {
     identification: AccountIdentification,
 }
 
+impl Display for DebtorAccount {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Identification: {}", self.identification)?;
+        Ok(())
+    }
+}
+
 impl DebtorAccount {
     pub(crate) fn new(identification: AccountIdentification) -> Self {
         Self { identification }
@@ -63,6 +103,19 @@ pub(crate) struct Creditor {
     name: Option<Name>,
     #[serde(rename = "PstlAdr")]
     postal_address: Option<PostalAddress>,
+}
+
+impl Display for Creditor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(name) = &self.name {
+            writeln!(f, "- Name: {}", name)?;
+        }
+        if let Some(postal_address) = &self.postal_address {
+            writeln!(f, "- Postal address")?;
+            write!(indented(f), "{}", postal_address)?;
+        }
+        Ok(())
+    }
 }
 
 impl Creditor {

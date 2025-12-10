@@ -21,7 +21,9 @@ use crate::camt_053_message::statement::entry::*;
 use crate::camt_053_message::statement::from_to_date::*;
 use crate::camt_053_message::statement::sequence_number::*;
 use crate::camt_053_message::statement::transactions_summary::*;
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(super) struct Statement {
@@ -43,6 +45,41 @@ pub(super) struct Statement {
     transactions_summary: Option<TransactionsSummary>,
     #[serde(rename = "Ntry")]
     entries: Option<Vec<Entry>>,
+}
+
+impl Display for Statement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Identification: {}", self.identification)?;
+        writeln!(
+            f,
+            "- Electronic sequence number: {}",
+            self.electronic_sequence_number
+        )?;
+        if let Some(legal_sequence_number) = &self.legal_sequence_number {
+            writeln!(f, "- Legal sequence number: {}", legal_sequence_number)?;
+        }
+        writeln!(f, "- Creation date time: {}", self.creation_date_time)?;
+        if let Some(from_to_date) = &self.from_to_date {
+            writeln!(f, "- From to date: {}", from_to_date)?;
+        }
+        writeln!(f, "- Account")?;
+        write!(indented(f), "{}", self.account)?;
+        for balance in &self.balances {
+            writeln!(f, "- Balance")?;
+            write!(indented(f), "{}", balance)?;
+        }
+        if let Some(transactions_summary) = &self.transactions_summary {
+            writeln!(f, "- Transactions summary")?;
+            write!(indented(f), "{}", transactions_summary)?;
+        }
+        if let Some(entries) = &self.entries {
+            for entry in entries {
+                writeln!(f, "- Entry")?;
+                write!(indented(f), "{}", entry)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl Statement {

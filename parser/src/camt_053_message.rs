@@ -23,6 +23,10 @@ impl Display for Camt053Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Group header")?;
         write!(f, "{}", self.group_header)?;
+        for statement in &self.statements {
+            writeln!(f, "Statement")?;
+            write!(f, "{}", statement)?;
+        }
         Ok(())
     }
 }

@@ -3,7 +3,9 @@ use crate::camt_053_message::statement::account::servicer::*;
 use crate::camt_053_message::statement::account_identification::*;
 use crate::camt_053_message::statement::currency::*;
 use crate::camt_053_message::statement::name::*;
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 pub(crate) mod owner;
 pub(crate) mod servicer;
@@ -20,6 +22,25 @@ pub(crate) struct Account {
     owner: Option<Owner>,
     #[serde(rename = "Svcr")]
     servicer: Option<Servicer>,
+}
+
+impl Display for Account {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Identification: {}", self.identification)?;
+        writeln!(f, "- Currency: {}", self.currency)?;
+        if let Some(name) = &self.name {
+            writeln!(f, "- Name: {}", name)?;
+        }
+        if let Some(owner) = &self.owner {
+            writeln!(f, "- Owner")?;
+            write!(indented(f), "{}", owner)?;
+        }
+        if let Some(servicer) = &self.servicer {
+            writeln!(f, "- Servicer")?;
+            write!(indented(f), "{}", servicer)?;
+        }
+        Ok(())
+    }
 }
 
 impl Account {

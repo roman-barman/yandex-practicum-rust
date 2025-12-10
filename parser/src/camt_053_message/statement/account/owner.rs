@@ -1,7 +1,9 @@
 use crate::camt_053_message::statement::account::owner::owner_identification::*;
 use crate::camt_053_message::statement::name::*;
 use crate::camt_053_message::statement::postal_address::*;
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 pub(crate) mod owner_identification;
 
@@ -13,6 +15,23 @@ pub(crate) struct Owner {
     postal_address: Option<PostalAddress>,
     #[serde(rename = "Id")]
     identification: Option<OwnerIdentification>,
+}
+
+impl Display for Owner {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(name) = &self.name {
+            writeln!(f, "- Name: {}", name)?;
+        }
+        if let Some(postal_address) = &self.postal_address {
+            writeln!(f, "- Postal address")?;
+            write!(indented(f), "{}", postal_address)?;
+        }
+        if let Some(identification) = &self.identification {
+            writeln!(f, "- Identification")?;
+            write!(indented(f), "{}", identification)?;
+        }
+        Ok(())
+    }
 }
 
 impl Owner {

@@ -3,6 +3,7 @@ use crate::camt_053_message::statement::balance::balance_type::*;
 use crate::camt_053_message::statement::credit_debit_identification::*;
 use crate::camt_053_message::statement::date::*;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 pub(crate) mod balance_type;
 
@@ -16,6 +17,20 @@ pub(crate) struct Balance {
     credit_debit_identification: CreditDebitIdentification,
     #[serde(rename = "Dt")]
     date: Date,
+}
+
+impl Display for Balance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "- Balance type: {}", self.balance_type)?;
+        writeln!(f, "- Amount: {}", self.amount)?;
+        writeln!(
+            f,
+            "- Credit/debit identification: {}",
+            self.credit_debit_identification
+        )?;
+        writeln!(f, "- Date: {}", self.date)?;
+        Ok(())
+    }
 }
 
 impl Balance {

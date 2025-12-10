@@ -7,7 +7,9 @@ use crate::camt_053_message::statement::entry::bank_transaction_code::*;
 use crate::camt_053_message::statement::entry::entry_details::EntryDetails;
 use crate::camt_053_message::statement::entry::entry_reference::*;
 use crate::camt_053_message::statement::entry::status::*;
+use indenter::indented;
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Write};
 
 pub(crate) mod account_servicer_reference;
 pub(crate) mod additional_information_indicator;
@@ -38,6 +40,47 @@ pub(crate) struct Entry {
     additional_information_indicator: Option<AdditionalInformationIndicator>,
     #[serde(rename = "NtryDtls")]
     entry_details: Option<Vec<EntryDetails>>,
+}
+
+impl Display for Entry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(reference) = &self.reference {
+            writeln!(f, "- Reference: {}", reference)?;
+        }
+        writeln!(f, "- Amount: {}", self.amount)?;
+        writeln!(
+            f,
+            "- Credit/debit identification: {}",
+            self.credit_debit_identification
+        )?;
+        writeln!(f, "- Status: {}", self.status)?;
+        if let Some(booking_date) = &self.booking_date {
+            writeln!(f, "- Booking date: {}", booking_date)?;
+        }
+        if let Some(value_date) = &self.value_date {
+            writeln!(f, "- Value date: {}", value_date)?;
+        }
+        if let Some(account_servicer_reference) = &self.account_servicer_reference {
+            writeln!(
+                f,
+                "- Account servicer reference: {}",
+                account_servicer_reference
+            )?;
+        }
+        writeln!(f, "- Bank transaction code")?;
+        write!(indented(f), "{}", self.bank_transaction_code)?;
+        if let Some(additional_information_indicator) = &self.additional_information_indicator {
+            writeln!(f, "- Additional information indicator")?;
+            write!(indented(f), "{}", additional_information_indicator)?;
+        }
+        if let Some(entry_details) = &self.entry_details {
+            for entry_detail in entry_details {
+                writeln!(f, "- Entry detail")?;
+                write!(indented(f), "{}", entry_detail)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl Entry {
