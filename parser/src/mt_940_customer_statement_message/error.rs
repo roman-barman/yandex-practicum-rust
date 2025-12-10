@@ -34,7 +34,11 @@ impl Mt940CustomerStatementMessageReadError {
 
 impl Display for Mt940CustomerStatementMessageReadError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "MT 940 message read error: {}", self.details)
+        if let Some(inner) = self.inner.as_deref() {
+            write!(f, "MT 940 message read error: {}", inner)
+        } else {
+            write!(f, "MT 940 message read error: {}", self.details)
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 use clap::Parser;
-use parser::Mt940CustomerStatementMessage;
+use parser::{Camt053Message, Mt940CustomerStatementMessage};
 use std::io::Write;
 
 mod args;
@@ -25,10 +25,15 @@ fn main() {
                         }
                     }
                 }
-                Err(err) => match err.inner() {
-                    Some(inner_err) => println!("Error: {}", inner_err),
-                    None => println!("Error: {}", err),
-                },
+                Err(err) => eprintln!("{}", err),
+            }
+        }
+        args::InputFormat::CAMT053 => {
+            let file = std::fs::File::open(&args.input).expect("Unable to read file");
+            let result = Camt053Message::read_from(file);
+            match result {
+                Ok(message) => println!("{}", message),
+                Err(err) => eprintln!("{}", err),
             }
         }
     }

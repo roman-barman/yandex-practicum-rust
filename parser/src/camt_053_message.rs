@@ -2,10 +2,11 @@ use crate::camt_053_message::error::Camt053MessageReadError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use std::io::Read;
 
 mod creation_date_time;
-mod error;
+pub mod error;
 mod group_header;
 mod identification;
 mod statement;
@@ -16,6 +17,14 @@ pub struct Camt053Message {
     group_header: GroupHeader,
     #[serde(rename = "Stmt")]
     statements: Vec<Statement>,
+}
+
+impl Display for Camt053Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "Group header")?;
+        write!(f, "{}", self.group_header)?;
+        Ok(())
+    }
 }
 
 impl Camt053Message {

@@ -8,7 +8,11 @@ pub struct Camt053MessageReadError {
 
 impl Display for Camt053MessageReadError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "CAMT 053 message read error: {}", self.details)
+        if let Some(inner) = self.inner.as_deref() {
+            write!(f, "CAMT 053 message read error: {}", inner)
+        } else {
+            write!(f, "CAMT 053 message read error: {}", self.details)
+        }
     }
 }
 

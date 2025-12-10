@@ -16,6 +16,7 @@ pub struct Args {
 #[derive(Debug, clap::ValueEnum, Clone)]
 pub enum InputFormat {
     MT940,
+    CAMT053,
 }
 
 #[derive(Debug, clap::ValueEnum, Clone)]
