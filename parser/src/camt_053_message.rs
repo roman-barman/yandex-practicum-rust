@@ -1,9 +1,10 @@
-use crate::camt_053_message::error::Camt053MessageReadError;
+use crate::camt_053_message::error::Camt053MessageError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
-use std::io::Read;
+use std::io::{Read, Write};
+use xml::EmitterConfig;
 
 mod creation_date_time;
 pub mod error;
@@ -32,14 +33,39 @@ impl Display for Camt053Message {
 }
 
 impl Camt053Message {
-    pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageReadError> {
-        let result: Document = serde_xml_rs::from_reader(reader)?;
+    pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageError> {
+        let result: DocumentDeserialization = serde_xml_rs::from_reader(reader)?;
         Ok(result.camt053message)
+    }
+
+    pub fn write_to<T: Write>(&self, writer: T) -> Result<(), Camt053MessageError> {
+        let config = serde_xml_rs::SerdeXml::new()
+            .emitter(
+                EmitterConfig::new()
+                    .perform_indent(true)
+                    .write_document_declaration(false),
+            )
+            .default_namespace("urn:iso:std:iso:20022:tech:xsd:camt.053.001.02");
+        config.to_writer(
+            writer,
+            &DocumentSerialization {
+                camt053message: self,
+            },
+        )?;
+        Ok(())
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct Document {
+#[derive(Serialize)]
+#[serde(rename = "Document")]
+struct DocumentSerialization<'a> {
+    #[serde(rename = "BkToCstmrStmt")]
+    camt053message: &'a Camt053Message,
+}
+
+#[derive(Deserialize)]
+#[serde(rename = "Document")]
+struct DocumentDeserialization {
     #[serde(rename = "BkToCstmrStmt")]
     camt053message: Camt053Message,
 }
@@ -53,9 +79,7 @@ mod tests {
     use rust_decimal::Decimal;
 
     const DATA: &str = "
-<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:camt.053.001.02\"
-    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
-    xsi:schemaLocation=\"urn:iso:std:iso:20022:tech:xsd:camt.053.001.02 camt.053.001.02.xsd\">
+<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:camt.053.001.02\">
     <BkToCstmrStmt>
         <GrpHdr>
             <MsgId>XXX24Y4XXX1Y000000001</MsgId>

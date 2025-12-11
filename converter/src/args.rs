@@ -6,20 +6,15 @@ pub struct Args {
 
     /// Input file format
     #[arg(short = 'f', long, value_enum)]
-    pub input_format: InputFormat,
+    pub input_format: Format,
 
     /// Output file format
     #[arg(short = 'o', long, value_enum)]
-    pub output_format: Option<OutputFormat>,
+    pub output_format: Option<Format>,
 }
 
 #[derive(Debug, clap::ValueEnum, Clone)]
-pub enum InputFormat {
+pub enum Format {
     MT940,
     CAMT053,
-}
-
-#[derive(Debug, clap::ValueEnum, Clone)]
-pub enum OutputFormat {
-    MT940,
 }

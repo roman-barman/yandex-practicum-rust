@@ -409,6 +409,7 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde-xml-rs",
+ "xml",
 ]
 
 [[package]]

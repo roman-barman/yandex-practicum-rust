@@ -8,4 +8,5 @@ chrono = { version = "0.4", features = ["serde"] }
 rust_decimal = { version = "1", features = ["serde-with-str"] }
 serde = { version = "1", features = ["derive"] }
 serde-xml-rs = "0.8"
+xml = "1"
 indenter = "0.3"
