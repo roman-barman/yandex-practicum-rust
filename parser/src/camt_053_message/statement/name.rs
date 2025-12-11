@@ -10,6 +10,7 @@ impl Display for Name {
     }
 }
 
+#[cfg(test)]
 impl Name {
     pub(crate) fn new(name: String) -> Self {
         Self(name)

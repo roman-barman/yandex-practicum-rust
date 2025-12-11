@@ -43,6 +43,7 @@ impl Display for Account {
     }
 }
 
+#[cfg(test)]
 impl Account {
     pub fn new(
         identification: AccountIdentification,

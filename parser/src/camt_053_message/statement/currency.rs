@@ -10,6 +10,7 @@ impl Display for Currency {
     }
 }
 
+#[cfg(test)]
 impl Currency {
     pub(crate) fn new(currency_code: String) -> Self {
         Self(currency_code)

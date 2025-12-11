@@ -13,6 +13,7 @@ impl Display for BalanceType {
     }
 }
 
+#[cfg(test)]
 impl BalanceType {
     pub(crate) fn new(code_or_proprietary: CodeOrProprietary) -> Self {
         BalanceType {

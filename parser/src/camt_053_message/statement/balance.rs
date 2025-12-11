@@ -33,6 +33,7 @@ impl Display for Balance {
     }
 }
 
+#[cfg(test)]
 impl Balance {
     pub(crate) fn new(
         balance_type: BalanceType,

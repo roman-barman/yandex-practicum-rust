@@ -56,7 +56,7 @@ pub(crate) enum SchemeName {
 }
 
 impl Display for SchemeName {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             SchemeName::Code(code) => write!(f, "Code: {}", code),
             SchemeName::Proprietary(prop) => write!(f, "Proprietary: {}", prop),

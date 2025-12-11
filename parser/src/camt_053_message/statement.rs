@@ -82,6 +82,7 @@ impl Display for Statement {
     }
 }
 
+#[cfg(test)]
 impl Statement {
     pub(super) fn new(
         identification: Identification,

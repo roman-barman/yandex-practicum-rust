@@ -18,6 +18,7 @@ impl Display for RemittanceInformation {
     }
 }
 
+#[cfg(test)]
 impl RemittanceInformation {
     pub(crate) fn new(unstructured: Option<Vec<String>>) -> Self {
         Self { unstructured }

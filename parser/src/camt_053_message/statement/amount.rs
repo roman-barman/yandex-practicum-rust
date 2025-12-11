@@ -17,6 +17,7 @@ impl Display for Amount {
     }
 }
 
+#[cfg(test)]
 impl Amount {
     pub(crate) fn new(currency: Currency, amount: Decimal) -> Self {
         Amount { currency, amount }

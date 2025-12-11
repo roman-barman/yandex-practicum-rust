@@ -289,7 +289,7 @@ mod tests {
                         .unwrap()
                 )),
                 account::Account::new(
-                    account_identification::AccountIdentification::IBAN(
+                    account_identification::AccountIdentification::Iban(
                         Identification::new("DK8030000001234567".to_string())
                     ),
                     currency::Currency::new("DKK".to_string()),
@@ -373,8 +373,8 @@ mod tests {
                                     Some("SE".to_string()),
                                     Some(vec!["First addressline".to_string()]))))),
                                 Some(entry::entry_details::related_parties::DebtorAccount::new(
-                                    account_identification::AccountIdentification::IBAN(
-                                        identification::Identification::new("SE5180000810512345678901".to_string())
+                                    account_identification::AccountIdentification::Iban(
+                                        Identification::new("SE5180000810512345678901".to_string())
                                     )
                                 )),
                                 Some(entry::entry_details::related_parties::Creditor::new(

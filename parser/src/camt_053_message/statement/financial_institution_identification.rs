@@ -30,6 +30,7 @@ impl Display for FinancialInstitutionIdentification {
     }
 }
 
+#[cfg(test)]
 impl FinancialInstitutionIdentification {
     pub(crate) fn new(
         bic: Option<Bic>,
@@ -53,6 +54,7 @@ impl Display for Bic {
     }
 }
 
+#[cfg(test)]
 impl Bic {
     pub(crate) fn new(bic: String) -> Self {
         Self(bic)

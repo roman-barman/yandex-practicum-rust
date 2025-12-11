@@ -43,6 +43,7 @@ impl Display for PostalAddress {
     }
 }
 
+#[cfg(test)]
 impl PostalAddress {
     pub(crate) fn new(
         street: Option<String>,

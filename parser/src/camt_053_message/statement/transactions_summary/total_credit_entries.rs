@@ -23,6 +23,7 @@ impl Display for TotalCreditEntries {
     }
 }
 
+#[cfg(test)]
 impl TotalCreditEntries {
     pub(crate) fn new(number: Option<usize>, sum: Option<Decimal>) -> Self {
         Self { number, sum }

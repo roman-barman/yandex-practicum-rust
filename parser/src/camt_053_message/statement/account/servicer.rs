@@ -16,6 +16,7 @@ impl Display for Servicer {
     }
 }
 
+#[cfg(test)]
 impl Servicer {
     pub(crate) fn new(identification: FinancialInstitutionIdentification) -> Self {
         Self { identification }

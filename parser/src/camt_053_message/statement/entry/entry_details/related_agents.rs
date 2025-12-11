@@ -20,6 +20,7 @@ impl Display for RelatedAgents {
     }
 }
 
+#[cfg(test)]
 impl RelatedAgents {
     pub(crate) fn new(debtor_agent: Option<DebtorAgent>) -> Self {
         Self { debtor_agent }
@@ -40,6 +41,7 @@ impl Display for DebtorAgent {
     }
 }
 
+#[cfg(test)]
 impl DebtorAgent {
     pub(crate) fn new(identification: FinancialInstitutionIdentification) -> Self {
         Self { identification }

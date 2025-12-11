@@ -10,6 +10,7 @@ impl Display for Identification {
     }
 }
 
+#[cfg(test)]
 impl Identification {
     pub(super) fn new(value: String) -> Self {
         Identification(value)

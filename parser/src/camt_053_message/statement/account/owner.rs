@@ -34,6 +34,7 @@ impl Display for Owner {
     }
 }
 
+#[cfg(test)]
 impl Owner {
     pub(crate) fn new(
         name: Option<Name>,

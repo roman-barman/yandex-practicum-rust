@@ -34,6 +34,7 @@ impl Display for AmountDetails {
     }
 }
 
+#[cfg(test)]
 impl AmountDetails {
     pub(crate) fn new(
         instructed_amount: Option<InstructedAmount>,
@@ -60,6 +61,7 @@ impl Display for InstructedAmount {
     }
 }
 
+#[cfg(test)]
 impl InstructedAmount {
     pub(crate) fn new(amount: Amount) -> Self {
         Self { amount }
@@ -78,6 +80,7 @@ impl Display for TransactionAmount {
     }
 }
 
+#[cfg(test)]
 impl TransactionAmount {
     pub(crate) fn new(amount: Amount) -> Self {
         Self { amount }
@@ -100,6 +103,7 @@ impl Display for ProprietaryAmount {
     }
 }
 
+#[cfg(test)]
 impl ProprietaryAmount {
     pub(crate) fn new(amount_type: String, amount: Amount) -> Self {
         Self {

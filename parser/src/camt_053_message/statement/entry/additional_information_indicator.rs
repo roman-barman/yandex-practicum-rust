@@ -1,5 +1,4 @@
 use crate::camt_053_message::identification::Identification;
-use indenter::indented;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -22,6 +21,7 @@ impl Display for AdditionalInformationIndicator {
     }
 }
 
+#[cfg(test)]
 impl AdditionalInformationIndicator {
     pub(crate) fn new(message_name_identification: Option<Identification>) -> Self {
         Self {

@@ -34,6 +34,7 @@ impl Display for EntryDetails {
     }
 }
 
+#[cfg(test)]
 impl EntryDetails {
     pub(crate) fn new(transaction_details: Option<Vec<TransactionDetails>>) -> Self {
         Self {
@@ -93,6 +94,7 @@ impl Display for TransactionDetails {
     }
 }
 
+#[cfg(test)]
 impl TransactionDetails {
     pub(crate) fn new(
         references: Option<References>,

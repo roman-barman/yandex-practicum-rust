@@ -24,6 +24,7 @@ impl Display for BankTransactionCode {
     }
 }
 
+#[cfg(test)]
 impl BankTransactionCode {
     pub(crate) fn new(domain: Option<Domain>, proprietary: Option<Proprietary>) -> Self {
         Self {
@@ -50,6 +51,7 @@ impl Display for Domain {
     }
 }
 
+#[cfg(test)]
 impl Domain {
     pub(crate) fn new(code: String, family: Family) -> Self {
         Self { code, family }
@@ -72,6 +74,7 @@ impl Display for Family {
     }
 }
 
+#[cfg(test)]
 impl Family {
     pub(crate) fn new(code: String, sub_family_code: String) -> Self {
         Self {
@@ -99,6 +102,7 @@ impl Display for Proprietary {
     }
 }
 
+#[cfg(test)]
 impl Proprietary {
     pub(crate) fn new(code: String, issuer: Option<String>) -> Self {
         Self { code, issuer }

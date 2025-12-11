@@ -10,6 +10,7 @@ impl Display for Status {
     }
 }
 
+#[cfg(test)]
 impl Status {
     pub(crate) fn new(status: String) -> Self {
         Self(status)

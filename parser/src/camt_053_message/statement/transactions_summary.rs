@@ -37,6 +37,7 @@ impl Display for TransactionsSummary {
     }
 }
 
+#[cfg(test)]
 impl TransactionsSummary {
     pub(crate) fn new(
         total_entries: Option<TotalEntries>,

@@ -17,6 +17,7 @@ impl Display for RelatedDates {
     }
 }
 
+#[cfg(test)]
 impl RelatedDates {
     pub(crate) fn new(acceptance_date_time: Option<NaiveDateTime>) -> Self {
         Self {

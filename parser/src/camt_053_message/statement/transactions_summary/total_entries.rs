@@ -33,6 +33,7 @@ impl Display for TotalEntries {
     }
 }
 
+#[cfg(test)]
 impl TotalEntries {
     pub(crate) fn new(
         number: Option<usize>,

@@ -10,6 +10,7 @@ impl Display for EntryReference {
     }
 }
 
+#[cfg(test)]
 impl EntryReference {
     pub(crate) fn new(value: String) -> Self {
         Self(value)

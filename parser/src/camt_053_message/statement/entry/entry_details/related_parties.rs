@@ -34,6 +34,7 @@ impl Display for RelatedParties {
     }
 }
 
+#[cfg(test)]
 impl RelatedParties {
     pub(crate) fn new(
         debtor: Option<Debtor>,
@@ -69,6 +70,7 @@ impl Display for Debtor {
     }
 }
 
+#[cfg(test)]
 impl Debtor {
     pub(crate) fn new(name: Option<Name>, postal_address: Option<PostalAddress>) -> Self {
         Self {
@@ -91,6 +93,7 @@ impl Display for DebtorAccount {
     }
 }
 
+#[cfg(test)]
 impl DebtorAccount {
     pub(crate) fn new(identification: AccountIdentification) -> Self {
         Self { identification }
@@ -118,6 +121,7 @@ impl Display for Creditor {
     }
 }
 
+#[cfg(test)]
 impl Creditor {
     pub(crate) fn new(name: Option<Name>, postal_address: Option<PostalAddress>) -> Self {
         Self {

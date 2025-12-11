@@ -83,6 +83,7 @@ impl Display for Entry {
     }
 }
 
+#[cfg(test)]
 impl Entry {
     pub(crate) fn new(
         reference: Option<EntryReference>,

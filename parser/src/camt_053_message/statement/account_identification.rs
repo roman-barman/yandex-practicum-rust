@@ -5,7 +5,7 @@ use std::fmt::Display;
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) enum AccountIdentification {
     #[serde(rename = "IBAN")]
-    IBAN(Identification),
+    Iban(Identification),
     #[serde(rename = "Othr")]
     Other(AccountIdentificationOther),
 }
@@ -13,7 +13,7 @@ pub(crate) enum AccountIdentification {
 impl Display for AccountIdentification {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AccountIdentification::IBAN(iban) => write!(f, "IBAN: {}", iban),
+            AccountIdentification::Iban(iban) => write!(f, "IBAN: {}", iban),
             AccountIdentification::Other(other) => write!(f, "Other: {}", other.identification),
         }
     }

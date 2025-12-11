@@ -10,6 +10,7 @@ impl Display for AccountServicerReference {
     }
 }
 
+#[cfg(test)]
 impl AccountServicerReference {
     pub(crate) fn new(reference: String) -> Self {
         Self(reference)

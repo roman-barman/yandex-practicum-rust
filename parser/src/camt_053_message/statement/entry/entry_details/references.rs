@@ -31,6 +31,7 @@ impl Display for References {
     }
 }
 
+#[cfg(test)]
 impl References {
     pub(crate) fn new(
         end_to_end_identification: Option<Identification>,

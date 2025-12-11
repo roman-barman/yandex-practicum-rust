@@ -23,6 +23,7 @@ impl Display for GroupHeader {
     }
 }
 
+#[cfg(test)]
 impl GroupHeader {
     pub(super) fn new(
         message_identification: Identification,

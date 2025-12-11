@@ -11,6 +11,7 @@ impl Display for CreationDateTime {
     }
 }
 
+#[cfg(test)]
 impl CreationDateTime {
     pub(super) fn new(creation_date_time: NaiveDateTime) -> Self {
         CreationDateTime(creation_date_time)

@@ -10,6 +10,7 @@ impl Display for CreditDebitIdentification {
     }
 }
 
+#[cfg(test)]
 impl CreditDebitIdentification {
     pub fn new(value: String) -> Self {
         CreditDebitIdentification(value)

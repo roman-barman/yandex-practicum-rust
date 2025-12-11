@@ -10,6 +10,7 @@ impl Display for SequenceNumber {
     }
 }
 
+#[cfg(test)]
 impl SequenceNumber {
     pub(crate) fn new(value: usize) -> Self {
         Self(value)
