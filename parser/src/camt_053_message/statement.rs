@@ -1,11 +1,11 @@
 pub(super) mod account;
 pub(super) mod account_identification;
 pub(super) mod amount;
-pub(super) mod balance;
-pub(super) mod credit_debit_identification;
-pub(super) mod currency;
-pub(super) mod date;
-pub(super) mod entry;
+pub(crate) mod balance;
+pub(crate) mod credit_debit_identification;
+pub(crate) mod currency;
+pub(crate) mod date;
+pub(crate) mod entry;
 pub(super) mod financial_institution_identification;
 pub(super) mod from_to_date;
 pub(super) mod name;
@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Write};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(super) struct Statement {
+pub struct Statement {
     #[serde(rename = "Id")]
     identification: Identification,
     #[serde(rename = "ElctrncSeqNb")]
@@ -45,6 +45,40 @@ pub(super) struct Statement {
     transactions_summary: Option<TransactionsSummary>,
     #[serde(rename = "Ntry")]
     entries: Option<Vec<Entry>>,
+}
+
+impl Statement {
+    pub(crate) fn get_identification(&self) -> &str {
+        self.identification.as_ref()
+    }
+
+    pub(crate) fn get_account_identification(&self) -> &str {
+        self.account.get_identification()
+    }
+
+    pub(crate) fn get_electronic_sequence_number(&self) -> &usize {
+        self.electronic_sequence_number.as_ref()
+    }
+
+    pub(crate) fn get_legal_sequence_number(&self) -> Option<&usize> {
+        self.legal_sequence_number.as_ref().map(|s| s.as_ref())
+    }
+
+    pub(crate) fn get_opening_balance(&self) -> Option<&Balance> {
+        self.balances
+            .iter()
+            .find(|balance| balance.is_opening_balance())
+    }
+
+    pub(crate) fn get_closing_balance(&self) -> Option<&Balance> {
+        self.balances
+            .iter()
+            .find(|balance| balance.is_closing_balance())
+    }
+
+    pub(crate) fn get_entries(&self) -> Option<&Vec<Entry>> {
+        self.entries.as_ref()
+    }
 }
 
 impl Display for Statement {

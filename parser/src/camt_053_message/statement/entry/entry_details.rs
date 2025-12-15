@@ -22,6 +22,12 @@ pub(crate) struct EntryDetails {
     transaction_details: Option<Vec<TransactionDetails>>,
 }
 
+impl EntryDetails {
+    pub(crate) fn get_transaction_details(&self) -> Option<&Vec<TransactionDetails>> {
+        self.transaction_details.as_ref()
+    }
+}
+
 impl Display for EntryDetails {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(transaction_details) = &self.transaction_details {
@@ -59,6 +65,20 @@ pub(crate) struct TransactionDetails {
     related_dates: Option<RelatedDates>,
     #[serde(rename = "AddtlTxInf")]
     additional_information: Option<String>,
+}
+
+impl TransactionDetails {
+    pub(crate) fn get_amount_details(&self) -> Option<&AmountDetails> {
+        self.amount_details.as_ref()
+    }
+
+    pub(crate) fn get_remittance_information(&self) -> Option<&RemittanceInformation> {
+        self.remittance_information.as_ref()
+    }
+
+    pub(crate) fn get_additional_information(&self) -> Option<&String> {
+        self.additional_information.as_ref()
+    }
 }
 
 impl Display for TransactionDetails {

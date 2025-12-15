@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 pub(super) const DATE_LENGTH: usize = 6;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) struct Date(NaiveDate);
 
 impl Date {
@@ -25,6 +25,17 @@ impl Date {
         writer: &mut W,
     ) -> std::io::Result<()> {
         writer.write_all(self.0.format("%m%d").to_string().as_bytes())
+    }
+}
+
+impl From<&crate::camt_053_message::statement::date::Date> for Date {
+    fn from(value: &crate::camt_053_message::statement::date::Date) -> Self {
+        match value {
+            crate::camt_053_message::statement::date::Date::Date(date) => Self(*date),
+            crate::camt_053_message::statement::date::Date::DateTime(date_time) => {
+                Self(date_time.date())
+            }
+        }
     }
 }
 

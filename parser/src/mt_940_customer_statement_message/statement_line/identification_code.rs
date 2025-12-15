@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 
 pub(super) const IDENTIFICATION_CODE_LENGTH: usize = 3;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) struct IdentificationCode(String);
 
 impl IdentificationCode {

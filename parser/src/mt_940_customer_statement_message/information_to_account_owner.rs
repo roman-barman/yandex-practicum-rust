@@ -1,10 +1,13 @@
+use crate::camt_053_message::statement::entry::bank_transaction_code::BankTransactionCode;
+use crate::camt_053_message::statement::entry::entry_details::TransactionDetails;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::ops::Add;
 
 const INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH: usize = 65;
 const INFORMATION_MAX_LENGTH: usize = 6;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) struct InformationToAccountOwner(Vec<String>);
 
 impl InformationToAccountOwner {
@@ -18,10 +21,8 @@ impl InformationToAccountOwner {
         }
         Ok(())
     }
-}
 
-impl InformationToAccountOwner {
-    pub(super) fn add(
+    pub(super) fn try_add(
         &mut self,
         value: InformationToAccountOwner,
     ) -> Result<(), InformationToAccountOwnerError> {
@@ -30,6 +31,88 @@ impl InformationToAccountOwner {
         } else {
             self.0.extend(value.0);
             Ok(())
+        }
+    }
+
+    pub(super) fn from_bank_transaction_code(
+        value: &BankTransactionCode,
+    ) -> Option<InformationToAccountOwner> {
+        if let Some(code) = value.get_proprietary_code() {
+            if code.len() >= INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH {
+                Some(InformationToAccountOwner(vec![code.to_string()]))
+            } else {
+                Some(split_text_to_information_to_account_owner(code))
+            }
+        } else {
+            None
+        }
+    }
+
+    pub(super) fn from_transaction_details(
+        transaction_details: &TransactionDetails,
+    ) -> Option<InformationToAccountOwner> {
+        let mut result: Option<InformationToAccountOwner> = None;
+
+        let mut try_append = |text: &str| {
+            let mut parsed = split_text_to_information_to_account_owner(text);
+            let acc = result.get_or_insert(InformationToAccountOwner(Vec::new()));
+
+            let available_slots = INFORMATION_MAX_LENGTH.saturating_sub(acc.0.len());
+            if parsed.0.len() < available_slots {
+                acc.0.append(&mut parsed.0);
+            }
+        };
+
+        if let Some(unstructured) = transaction_details
+            .get_remittance_information()
+            .and_then(|ri| ri.get_unstructured())
+        {
+            for text in unstructured {
+                try_append(text.as_str());
+            }
+        }
+
+        if let Some(additional_information) = transaction_details.get_additional_information() {
+            try_append(additional_information.as_str());
+        }
+
+        result
+    }
+}
+
+fn split_text_to_information_to_account_owner(value: &str) -> InformationToAccountOwner {
+    if value.len() >= INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH {
+        InformationToAccountOwner(vec![value.to_string()])
+    } else {
+        let mut info = String::new();
+        let mut lines = vec![];
+        for text in value.split_ascii_whitespace() {
+            if info.len() + text.len() > INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH {
+                if lines.len() < INFORMATION_MAX_LENGTH {
+                    lines.push(info);
+                    info = text.to_string();
+                } else {
+                    return InformationToAccountOwner(lines);
+                }
+            } else {
+                info.push_str(text);
+            }
+        }
+        lines.push(info);
+        InformationToAccountOwner(lines)
+    }
+}
+
+impl Add for InformationToAccountOwner {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        if self.0.len() + rhs.0.len() > INFORMATION_MAX_LENGTH {
+            let mut result = vec![];
+            result.extend(self.0);
+            result.extend(rhs.0);
+            Self(result)
+        } else {
+            self
         }
     }
 }
@@ -156,7 +239,7 @@ mod tests {
         let mut information_to_account_owner =
             InformationToAccountOwner::try_from("ValidInformation").unwrap();
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation2").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation2").unwrap());
         assert_eq!(result, Ok(()));
         assert_eq!(
             information_to_account_owner.to_string(),
@@ -169,27 +252,27 @@ mod tests {
         let mut information_to_account_owner =
             InformationToAccountOwner::try_from("ValidInformation").unwrap();
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation2").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation2").unwrap());
         assert_eq!(result, Ok(()));
 
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation3").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation3").unwrap());
         assert_eq!(result, Ok(()));
 
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation4").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation4").unwrap());
         assert_eq!(result, Ok(()));
 
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation5").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation5").unwrap());
         assert_eq!(result, Ok(()));
 
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation6").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation6").unwrap());
         assert_eq!(result, Ok(()));
 
         let result = information_to_account_owner
-            .add(InformationToAccountOwner::try_from("ValidInformation7").unwrap());
+            .try_add(InformationToAccountOwner::try_from("ValidInformation7").unwrap());
         assert_eq!(result, Err(InformationToAccountOwnerError::TooLong));
         assert_eq!(
             result.unwrap_err().to_string(),

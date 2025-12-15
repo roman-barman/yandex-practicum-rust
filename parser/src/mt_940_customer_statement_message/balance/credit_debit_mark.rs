@@ -1,3 +1,4 @@
+use crate::camt_053_message::statement::credit_debit_identification::CreditDebitIdentification;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
@@ -23,6 +24,19 @@ impl TryFrom<&char> for CreditDebitMark {
             'C' => Ok(Self::Credit),
             'D' => Ok(Self::Debit),
             _ => Err(CreditDebitMarkParseError::InvalidValue),
+        }
+    }
+}
+
+impl TryFrom<&CreditDebitIdentification> for CreditDebitMark {
+    type Error = CreditDebitMarkParseError;
+    fn try_from(value: &CreditDebitIdentification) -> Result<Self, Self::Error> {
+        if value.is_credit() {
+            Ok(Self::Credit)
+        } else if value.is_debit() {
+            Ok(Self::Debit)
+        } else {
+            Err(CreditDebitMarkParseError::InvalidValue)
         }
     }
 }

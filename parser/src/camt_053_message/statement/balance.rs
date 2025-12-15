@@ -19,6 +19,28 @@ pub(crate) struct Balance {
     date: Date,
 }
 
+impl Balance {
+    pub(crate) fn is_opening_balance(&self) -> bool {
+        self.balance_type.is_opening_balance()
+    }
+
+    pub(crate) fn is_closing_balance(&self) -> bool {
+        self.balance_type.is_closing_balance()
+    }
+
+    pub(crate) fn get_credit_debit_identification(&self) -> &CreditDebitIdentification {
+        &self.credit_debit_identification
+    }
+
+    pub(crate) fn get_date(&self) -> &Date {
+        &self.date
+    }
+
+    pub(crate) fn get_amount(&self) -> &Amount {
+        &self.amount
+    }
+}
+
 impl Display for Balance {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "- Balance type: {}", self.balance_type)?;

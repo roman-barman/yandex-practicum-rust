@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 const ACCOUNT_OWNER_REF_MAX_LENGTH: usize = 16;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) struct AccountOwnerRef(String);
 
 impl AccountOwnerRef {

@@ -1,3 +1,4 @@
+use crate::camt_053_message::statement::entry::Entry;
 use crate::mt_940_customer_statement_message::amount::*;
 use crate::mt_940_customer_statement_message::date::*;
 use crate::mt_940_customer_statement_message::information_to_account_owner::*;
@@ -14,6 +15,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::num::ParseIntError;
+use std::ops::Add;
 
 mod account_owner_ref;
 mod bank_ref;
@@ -40,6 +42,77 @@ pub(super) struct StatementLine {
 }
 
 impl StatementLine {
+    pub(super) fn try_from_entry(
+        value: &Entry,
+    ) -> Result<Vec<StatementLine>, StatementLineParseError> {
+        let mut result = Vec::new();
+        let value_date = Date::from(value.get_value_date().ok_or(DateParseError::Empty)?);
+        let entry_date = value.get_booking_date().map(Date::from);
+        let debit_credit_mark = CreditDebitMark::try_from(value.get_credit_debit_identification())?;
+        let transaction_type = TransactionType::NonSwiftTransfer;
+        let identification_code = IdentificationCode::try_from("TRF")?;
+        let account_owner_ref = AccountOwnerRef::try_from(
+            value
+                .get_account_servicer_reference()
+                .map_or("NOREF", |account_owner_ref| account_owner_ref.as_ref()),
+        )?;
+        let information_to_account_owner_from_code =
+            InformationToAccountOwner::from_bank_transaction_code(
+                value.get_bank_transaction_code(),
+            );
+
+        for entry_details in value
+            .get_entry_details()
+            .ok_or(StatementLineParseError::Empty)?
+        {
+            for transaction in entry_details
+                .get_transaction_details()
+                .ok_or(StatementLineParseError::Empty)?
+            {
+                let amount = transaction
+                    .get_amount_details()
+                    .and_then(|details| {
+                        details
+                            .get_transaction_amount()
+                            .map(|amount| Amount::new(amount.get_amount().get_amount()))
+                    })
+                    .unwrap_or(Amount::new(value.get_amount().get_amount()));
+                let additional_information =
+                    InformationToAccountOwner::from_transaction_details(transaction);
+                let information_to_account_owner_from = if let Some(ref info_from_code) =
+                    information_to_account_owner_from_code
+                    && let Some(additional_info) = additional_information
+                {
+                    Some((*info_from_code).clone().add(additional_info))
+                } else if let Some(ref info_from_code) = information_to_account_owner_from_code {
+                    Some((*info_from_code).clone())
+                } else {
+                    additional_information
+                };
+
+                result.push(Self {
+                    value_date: value_date.clone(),
+                    entry_date: entry_date.clone(),
+                    debit_credit_mark: debit_credit_mark.clone(),
+                    funds_code: None,
+                    amount,
+                    transaction_type: transaction_type.clone(),
+                    identification_code: identification_code.clone(),
+                    account_owner_ref: account_owner_ref.clone(),
+                    bank_ref: None,
+                    supplementary_details: None,
+                    information_to_account_owner: information_to_account_owner_from,
+                })
+            }
+        }
+
+        if result.is_empty() {
+            Err(StatementLineParseError::Empty)
+        } else {
+            Ok(result)
+        }
+    }
+
     pub(super) fn add_supplementary_details(
         &mut self,
         value: SupplementaryDetails,
@@ -57,7 +130,7 @@ impl StatementLine {
     ) -> Result<(), StatementLineError> {
         match self.information_to_account_owner {
             Some(ref mut information_to_account_owner) => {
-                information_to_account_owner.add(value)?;
+                information_to_account_owner.try_add(value)?;
             }
             None => {
                 self.information_to_account_owner = Some(value);

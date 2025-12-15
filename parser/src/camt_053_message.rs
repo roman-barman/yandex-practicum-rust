@@ -10,7 +10,7 @@ mod creation_date_time;
 pub mod error;
 mod group_header;
 mod identification;
-mod statement;
+pub(crate) mod statement;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Camt053Message {
@@ -53,6 +53,10 @@ impl Camt053Message {
             },
         )?;
         Ok(())
+    }
+
+    pub fn get_statements(&self) -> &[Statement] {
+        self.statements.as_slice()
     }
 }
 

@@ -14,6 +14,12 @@ pub(crate) struct AmountDetails {
     proprietary_amount: Option<Vec<ProprietaryAmount>>,
 }
 
+impl AmountDetails {
+    pub(crate) fn get_transaction_amount(&self) -> Option<&TransactionAmount> {
+        self.transaction_amount.as_ref()
+    }
+}
+
 impl Display for AmountDetails {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(instructed_amount) = &self.instructed_amount {
@@ -72,6 +78,12 @@ impl InstructedAmount {
 pub(crate) struct TransactionAmount {
     #[serde(rename = "Amt")]
     amount: Amount,
+}
+
+impl TransactionAmount {
+    pub(crate) fn get_amount(&self) -> &Amount {
+        &self.amount
+    }
 }
 
 impl Display for TransactionAmount {

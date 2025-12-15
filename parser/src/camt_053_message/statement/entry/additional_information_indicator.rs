@@ -23,7 +23,9 @@ impl Display for AdditionalInformationIndicator {
 
 #[cfg(test)]
 impl AdditionalInformationIndicator {
-    pub(crate) fn new(message_name_identification: Option<Identification>) -> Self {
+    pub(in crate::camt_053_message) fn new(
+        message_name_identification: Option<Identification>,
+    ) -> Self {
         Self {
             message_name_identification,
         }

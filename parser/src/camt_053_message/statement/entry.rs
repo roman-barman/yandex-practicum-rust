@@ -42,6 +42,36 @@ pub(crate) struct Entry {
     entry_details: Option<Vec<EntryDetails>>,
 }
 
+impl Entry {
+    pub(crate) fn get_entry_details(&self) -> Option<&Vec<EntryDetails>> {
+        self.entry_details.as_ref()
+    }
+
+    pub(crate) fn get_value_date(&self) -> Option<&Date> {
+        self.value_date.as_ref()
+    }
+
+    pub(crate) fn get_booking_date(&self) -> Option<&Date> {
+        self.booking_date.as_ref()
+    }
+
+    pub(crate) fn get_credit_debit_identification(&self) -> &CreditDebitIdentification {
+        &self.credit_debit_identification
+    }
+
+    pub(crate) fn get_amount(&self) -> &Amount {
+        &self.amount
+    }
+
+    pub(crate) fn get_account_servicer_reference(&self) -> Option<&AccountServicerReference> {
+        self.account_servicer_reference.as_ref()
+    }
+
+    pub(crate) fn get_bank_transaction_code(&self) -> &BankTransactionCode {
+        &self.bank_transaction_code
+    }
+}
+
 impl Display for Entry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(reference) = &self.reference {

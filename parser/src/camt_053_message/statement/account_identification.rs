@@ -3,11 +3,20 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub(crate) enum AccountIdentification {
+pub(in crate::camt_053_message) enum AccountIdentification {
     #[serde(rename = "IBAN")]
     Iban(Identification),
     #[serde(rename = "Othr")]
     Other(AccountIdentificationOther),
+}
+
+impl AsRef<str> for AccountIdentification {
+    fn as_ref(&self) -> &str {
+        match self {
+            AccountIdentification::Iban(iban) => iban.as_ref(),
+            AccountIdentification::Other(other) => other.identification.as_ref(),
+        }
+    }
 }
 
 impl Display for AccountIdentification {

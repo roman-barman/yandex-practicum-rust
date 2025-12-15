@@ -10,6 +10,16 @@ impl Display for CreditDebitIdentification {
     }
 }
 
+impl CreditDebitIdentification {
+    pub(crate) fn is_credit(&self) -> bool {
+        self.0 == "CRDT"
+    }
+
+    pub(crate) fn is_debit(&self) -> bool {
+        self.0 == "DBIT"
+    }
+}
+
 #[cfg(test)]
 impl CreditDebitIdentification {
     pub fn new(value: String) -> Self {

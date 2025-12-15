@@ -16,6 +16,10 @@ impl Amount {
         }
         writer.write_all(data.as_bytes())
     }
+
+    pub(crate) fn new(value: Decimal) -> Self {
+        Self(value)
+    }
 }
 
 impl TryFrom<&str> for Amount {

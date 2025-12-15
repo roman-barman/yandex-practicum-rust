@@ -95,7 +95,7 @@ impl Display for DebtorAccount {
 
 #[cfg(test)]
 impl DebtorAccount {
-    pub(crate) fn new(identification: AccountIdentification) -> Self {
+    pub(in crate::camt_053_message) fn new(identification: AccountIdentification) -> Self {
         Self { identification }
     }
 }

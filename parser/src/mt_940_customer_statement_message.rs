@@ -9,6 +9,7 @@ mod statement_line;
 mod statement_sequence_number;
 mod transaction_reference_number;
 
+use crate::camt_053_message::statement::Statement;
 use crate::mt_940_customer_statement_message::account_identification::*;
 use crate::mt_940_customer_statement_message::balance::state::*;
 use crate::mt_940_customer_statement_message::balance::*;
@@ -88,6 +89,48 @@ impl Display for Mt940CustomerStatementMessage {
             write!(f, "{}", information_to_account_owner)?;
         }
         Ok(())
+    }
+}
+
+impl TryFrom<&Statement> for Mt940CustomerStatementMessage {
+    type Error = Mt940CustomerStatementMessageReadError;
+
+    fn try_from(value: &Statement) -> Result<Self, Self::Error> {
+        let mut builder = Mt940CustomerStatementMessageBuilder::default();
+        builder.add_transaction_reference_number(TransactionReferenceNumber::try_from(
+            value.get_identification(),
+        )?);
+        builder.add_account_identification(AccountIdentification::try_from(
+            value.get_account_identification(),
+        )?);
+        let statement_sequence_number = if let Some(number) = value.get_legal_sequence_number() {
+            StatementSequenceNumber::try_from(
+                format!("{}/{}", value.get_electronic_sequence_number(), number).as_str(),
+            )?
+        } else {
+            StatementSequenceNumber::try_from(
+                format!("{}", value.get_electronic_sequence_number()).as_str(),
+            )?
+        };
+        builder.add_statement_sequence_number(statement_sequence_number);
+        builder.add_opening_balance(Balance::try_from(
+            value
+                .get_opening_balance()
+                .ok_or(BalanceParseError::Empty)?,
+        )?);
+        builder.add_closing_balance(Balance::try_from(
+            value
+                .get_closing_balance()
+                .ok_or(BalanceParseError::Empty)?,
+        )?);
+
+        for entry in value.get_entries().ok_or(StatementLineParseError::Empty)? {
+            for statement_line in StatementLine::try_from_entry(entry)? {
+                builder.add_statement_line(statement_line);
+            }
+        }
+
+        builder.build()
     }
 }
 
@@ -650,7 +693,7 @@ impl Mt940CustomerStatementMessageBuilder {
     ) -> Result<(), Mt940CustomerStatementMessageReadError> {
         match self.information_to_account_owner {
             Some(ref mut information_to_account_owner) => {
-                information_to_account_owner.add(value)?;
+                information_to_account_owner.try_add(value)?;
             }
             None => {
                 self.information_to_account_owner = Some(value);

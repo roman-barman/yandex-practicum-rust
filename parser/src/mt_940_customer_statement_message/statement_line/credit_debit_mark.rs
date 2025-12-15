@@ -1,9 +1,10 @@
+use crate::camt_053_message::statement::credit_debit_identification::CreditDebitIdentification;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 pub(super) const CREDIT_DEBIT_MARK_MAX_LENGTH: usize = 2;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(super) enum CreditDebitMark {
     Credit,
     Debit,
@@ -18,6 +19,19 @@ impl CreditDebitMark {
             CreditDebitMark::Debit => writer.write_all(b"D"),
             CreditDebitMark::ReversalOfCredit => writer.write_all(b"RC"),
             CreditDebitMark::ReversalOfDebit => writer.write_all(b"RD"),
+        }
+    }
+}
+
+impl TryFrom<&CreditDebitIdentification> for CreditDebitMark {
+    type Error = CreditDebitMarkParseError;
+    fn try_from(value: &CreditDebitIdentification) -> Result<Self, Self::Error> {
+        if value.is_credit() {
+            Ok(Self::Credit)
+        } else if value.is_debit() {
+            Ok(Self::Debit)
+        } else {
+            Err(CreditDebitMarkParseError::InvalidValue)
         }
     }
 }

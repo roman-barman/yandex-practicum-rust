@@ -21,6 +21,25 @@ pub(super) struct Balance {
     state: Option<State>,
 }
 
+impl TryFrom<&crate::camt_053_message::statement::balance::Balance> for Balance {
+    type Error = BalanceParseError;
+    fn try_from(
+        value: &crate::camt_053_message::statement::balance::Balance,
+    ) -> Result<Self, Self::Error> {
+        let debit_credit_mark = CreditDebitMark::try_from(value.get_credit_debit_identification())?;
+        let date = Date::from(value.get_date());
+        let currency_code = CurrencyCode::try_from(value.get_amount().get_currency().as_ref())?;
+        let amount = Amount::new(value.get_amount().get_amount());
+        Ok(Self {
+            debit_credit_mark,
+            date,
+            currency_code,
+            amount,
+            state: None,
+        })
+    }
+}
+
 impl Balance {
     pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
         self.debit_credit_mark.write_to(writer)?;

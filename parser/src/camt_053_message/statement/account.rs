@@ -24,6 +24,12 @@ pub(crate) struct Account {
     servicer: Option<Servicer>,
 }
 
+impl Account {
+    pub(crate) fn get_identification(&self) -> &str {
+        self.identification.as_ref()
+    }
+}
+
 impl Display for Account {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "- Identification: {}", self.identification)?;

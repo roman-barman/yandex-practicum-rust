@@ -6,6 +6,7 @@ mod args;
 
 fn main() {
     let args = args::Args::parse();
+    let mut stdout = std::io::stdout();
     match args.input_format {
         args::Format::MT940 => {
             let file = std::fs::File::open(&args.input).expect("Unable to read file");
@@ -16,11 +17,9 @@ fn main() {
                         match args.output_format {
                             None => println!("{}", statement),
                             Some(args::Format::MT940) => {
-                                let mut stdout = std::io::stdout();
                                 statement
                                     .write_to(&mut stdout)
                                     .expect("Unable to write to stdout");
-                                stdout.flush().expect("Unable to flush stdout");
                             }
                             Some(args::Format::CAMT053) => {}
                         }
@@ -35,17 +34,31 @@ fn main() {
             match result {
                 Ok(message) => match args.output_format {
                     None => println!("{}", message),
-                    Some(args::Format::MT940) => {}
+                    Some(args::Format::MT940) => {
+                        for statement in message.get_statements() {
+                            let mt940 = Mt940CustomerStatementMessage::try_from(statement);
+                            match mt940 {
+                                Ok(mt940) => {
+                                    mt940
+                                        .write_to(&mut stdout)
+                                        .expect("Unable to write to stdout");
+                                }
+                                Err(err) => {
+                                    eprintln!("{}", err);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     Some(args::Format::CAMT053) => {
-                        let mut stdout = std::io::stdout();
                         message
                             .write_to(&mut stdout)
                             .expect("Unable to write to stdout");
-                        stdout.flush().expect("Unable to flush stdout");
                     }
                 },
                 Err(err) => eprintln!("{}", err),
             }
         }
     }
+    stdout.flush().expect("Unable to flush stdout");
 }

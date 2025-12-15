@@ -11,6 +11,16 @@ pub(crate) struct Amount {
     amount: Decimal,
 }
 
+impl Amount {
+    pub(crate) fn get_currency(&self) -> &Currency {
+        &self.currency
+    }
+
+    pub(crate) fn get_amount(&self) -> Decimal {
+        self.amount
+    }
+}
+
 impl Display for Amount {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {}", self.amount, self.currency)

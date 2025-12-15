@@ -10,6 +10,14 @@ pub(crate) struct BankTransactionCode {
     proprietary: Option<Proprietary>,
 }
 
+impl BankTransactionCode {
+    pub(crate) fn get_proprietary_code(&self) -> Option<&str> {
+        self.proprietary
+            .as_ref()
+            .map(|proprietary| proprietary.code.as_str())
+    }
+}
+
 impl Display for BankTransactionCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(domain) = &self.domain {

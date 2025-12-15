@@ -7,6 +7,12 @@ pub(crate) struct RemittanceInformation {
     unstructured: Option<Vec<String>>,
 }
 
+impl RemittanceInformation {
+    pub(crate) fn get_unstructured(&self) -> Option<&Vec<String>> {
+        self.unstructured.as_ref()
+    }
+}
+
 impl Display for RemittanceInformation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(unstructured) = &self.unstructured {

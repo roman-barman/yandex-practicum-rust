@@ -33,7 +33,7 @@ impl Display for References {
 
 #[cfg(test)]
 impl References {
-    pub(crate) fn new(
+    pub(in crate::camt_053_message) fn new(
         end_to_end_identification: Option<Identification>,
         transaction_identification: Option<Identification>,
     ) -> Self {

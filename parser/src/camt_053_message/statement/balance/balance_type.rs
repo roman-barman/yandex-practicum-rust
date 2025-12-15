@@ -1,10 +1,30 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
+const OPENING_BALANCE_CODE: &str = "OPBD";
+const CLOSING_BALANCE_CODE: &str = "CLBD";
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct BalanceType {
     #[serde(rename = "CdOrPrtry")]
     code_or_proprietary: CodeOrProprietary,
+}
+
+impl BalanceType {
+    pub(crate) fn is_opening_balance(&self) -> bool {
+        self.get_code() == Some(OPENING_BALANCE_CODE)
+    }
+
+    pub(crate) fn is_closing_balance(&self) -> bool {
+        self.get_code() == Some(CLOSING_BALANCE_CODE)
+    }
+
+    pub(crate) fn get_code(&self) -> Option<&str> {
+        match &self.code_or_proprietary {
+            CodeOrProprietary::Code(code) => Some(code),
+            CodeOrProprietary::Proprietary(_) => None,
+        }
+    }
 }
 
 impl Display for BalanceType {
