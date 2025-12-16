@@ -1,8 +1,9 @@
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
+use std::collections::HashSet;
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash, Eq)]
 pub struct Transaction {
     amount: Decimal,
     currency: String,
@@ -29,7 +30,7 @@ impl Transaction {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash, Eq)]
 pub enum TransactionType {
     Debit,
     Credit,
@@ -56,5 +57,5 @@ impl Display for Transaction {
 }
 
 pub trait TransactionProvider {
-    fn get_transactions(&self) -> Vec<Transaction>;
+    fn get_transactions(&self) -> HashSet<Transaction>;
 }

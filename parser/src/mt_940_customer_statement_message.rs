@@ -21,6 +21,7 @@ use crate::mt_940_customer_statement_message::statement_line::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
 use crate::{MessageWriter, Transaction, TransactionProvider};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use std::io::{BufRead, BufReader, Read, Write};
 
@@ -52,11 +53,13 @@ pub struct Mt940CustomerStatementMessage {
 }
 
 impl TransactionProvider for Mt940CustomerStatementMessage {
-    fn get_transactions(&self) -> Vec<Transaction> {
-        let mut res = vec![];
+    fn get_transactions(&self) -> HashSet<Transaction> {
+        let mut res = HashSet::new();
         if let Some(lines) = &self.statement_lines {
             for line in lines {
-                res.push(line.to_transaction(self.opening_balance.get_currency_code().to_string()));
+                res.insert(
+                    line.to_transaction(self.opening_balance.get_currency_code().to_string()),
+                );
             }
         }
         res
