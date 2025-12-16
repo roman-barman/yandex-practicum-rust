@@ -10,6 +10,12 @@ pub(crate) enum Date {
     DateTime(NaiveDateTime),
 }
 
+impl From<&crate::mt_940_customer_statement_message::date::Date> for Date {
+    fn from(value: &crate::mt_940_customer_statement_message::date::Date) -> Self {
+        Date::Date(value.as_ref().clone())
+    }
+}
+
 impl Display for Date {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

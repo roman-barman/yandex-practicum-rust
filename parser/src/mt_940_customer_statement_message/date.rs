@@ -5,7 +5,13 @@ use std::fmt::Display;
 pub(super) const DATE_LENGTH: usize = 6;
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) struct Date(NaiveDate);
+pub(crate) struct Date(NaiveDate);
+
+impl AsRef<NaiveDate> for Date {
+    fn as_ref(&self) -> &NaiveDate {
+        &self.0
+    }
+}
 
 impl Date {
     pub(super) fn new(date: NaiveDate) -> Self {
@@ -85,7 +91,7 @@ impl Display for Date {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum DateParseError {
+pub(crate) enum DateParseError {
     Empty,
     InvalidFormat,
     InvalidValue,

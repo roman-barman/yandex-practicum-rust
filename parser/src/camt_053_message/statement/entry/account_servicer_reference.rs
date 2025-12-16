@@ -4,6 +4,12 @@ use std::fmt::Display;
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct AccountServicerReference(String);
 
+impl From<&crate::mt_940_customer_statement_message::statement_line::account_owner_ref::AccountOwnerRef> for AccountServicerReference {
+    fn from(value: &crate::mt_940_customer_statement_message::statement_line::account_owner_ref::AccountOwnerRef) -> Self {
+        AccountServicerReference(value.to_string())
+    }
+}
+
 impl AsRef<str> for AccountServicerReference {
     fn as_ref(&self) -> &str {
         &self.0

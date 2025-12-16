@@ -21,7 +21,12 @@ fn main() {
                                     .write_to(&mut stdout)
                                     .expect("Unable to write to stdout");
                             }
-                            Some(args::Format::CAMT053) => {}
+                            Some(args::Format::CAMT053) => {
+                                let camt053_message = Camt053Message::from(&statement);
+                                camt053_message
+                                    .write_to(&mut stdout)
+                                    .expect("Unable to write to stdout");
+                            }
                         }
                     }
                 }

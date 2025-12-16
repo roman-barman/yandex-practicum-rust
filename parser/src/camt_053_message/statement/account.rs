@@ -1,3 +1,4 @@
+use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::statement::account::owner::*;
 use crate::camt_053_message::statement::account::servicer::*;
 use crate::camt_053_message::statement::account_identification::*;
@@ -22,6 +23,21 @@ pub(crate) struct Account {
     owner: Option<Owner>,
     #[serde(rename = "Svcr")]
     servicer: Option<Servicer>,
+}
+
+impl From<&Mt940CustomerStatementMessage> for Account {
+    fn from(value: &Mt940CustomerStatementMessage) -> Self {
+        let identification =
+            AccountIdentification::new_other(value.get_account_identification().to_string());
+        let currency = Currency::new(value.get_opening_balance().get_currency_code().to_string());
+        Self {
+            identification,
+            currency,
+            name: None,
+            owner: None,
+            servicer: None,
+        }
+    }
 }
 
 impl Account {

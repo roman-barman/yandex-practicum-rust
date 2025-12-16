@@ -1,13 +1,13 @@
 mod account_identification;
 mod amount;
-mod balance;
-mod date;
+pub(crate) mod balance;
+pub(crate) mod date;
 pub mod error;
 mod information_to_account_owner;
 mod related_reference;
-mod statement_line;
-mod statement_sequence_number;
-mod transaction_reference_number;
+pub(crate) mod statement_line;
+pub(crate) mod statement_sequence_number;
+pub(crate) mod transaction_reference_number;
 
 use crate::camt_053_message::statement::Statement;
 use crate::mt_940_customer_statement_message::account_identification::*;
@@ -497,6 +497,30 @@ impl Mt940CustomerStatementMessage {
         }
 
         Ok(())
+    }
+
+    pub(crate) fn get_transaction_reference_number(&self) -> &TransactionReferenceNumber {
+        &self.transaction_reference_number
+    }
+
+    pub(crate) fn get_statement_sequence_number(&self) -> &StatementSequenceNumber {
+        &self.statement_sequence_no
+    }
+
+    pub(crate) fn get_account_identification(&self) -> &AccountIdentification {
+        &self.account_identification
+    }
+
+    pub(crate) fn get_opening_balance(&self) -> &Balance {
+        &self.opening_balance
+    }
+
+    pub(crate) fn get_closing_balance(&self) -> &Balance {
+        &self.closing_balance
+    }
+
+    pub(crate) fn get_statement_lines(&self) -> Option<&[StatementLine]> {
+        self.statement_lines.as_deref()
     }
 }
 

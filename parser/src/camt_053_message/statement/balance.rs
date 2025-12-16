@@ -39,6 +39,34 @@ impl Balance {
     pub(crate) fn get_amount(&self) -> &Amount {
         &self.amount
     }
+
+    pub(super) fn from_opening_balance(
+        balance: &crate::mt_940_customer_statement_message::balance::Balance,
+    ) -> Self {
+        from_balance(BalanceType::new_opening_balance(), balance)
+    }
+
+    pub(super) fn from_closing_balance(
+        balance: &crate::mt_940_customer_statement_message::balance::Balance,
+    ) -> Self {
+        from_balance(BalanceType::new_closing_balance(), balance)
+    }
+}
+
+fn from_balance(
+    balance_type: BalanceType,
+    balance: &crate::mt_940_customer_statement_message::balance::Balance,
+) -> Balance {
+    let amount = Amount::from(balance);
+    let credit_debit_identification =
+        CreditDebitIdentification::from(balance.get_credit_debit_mark());
+    let date = Date::from(balance.get_date());
+    Balance {
+        balance_type,
+        amount,
+        credit_debit_identification,
+        date,
+    }
 }
 
 impl Display for Balance {

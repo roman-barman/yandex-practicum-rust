@@ -1,3 +1,4 @@
+use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::error::Camt053MessageError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
@@ -18,6 +19,16 @@ pub struct Camt053Message {
     group_header: GroupHeader,
     #[serde(rename = "Stmt")]
     statements: Vec<Statement>,
+}
+
+impl From<&Mt940CustomerStatementMessage> for Camt053Message {
+    fn from(mt940_message: &Mt940CustomerStatementMessage) -> Self {
+        let group_header = GroupHeader::from(mt940_message.get_transaction_reference_number());
+        Camt053Message {
+            group_header,
+            statements: vec![Statement::from(mt940_message)],
+        }
+    }
 }
 
 impl Display for Camt053Message {
@@ -336,11 +347,11 @@ mod tests {
                     Some(entry::entry_reference::EntryReference::new("1".to_string())),
                     amount::Amount::new(currency::Currency::new("DKK".to_string()), Decimal::new(59115, 2)),
                     credit_debit_identification::CreditDebitIdentification::new("CRDT".to_string()),
-                    entry::status::Status::new("BOOK".to_string()),
+                    Some(entry::status::Status::new("BOOK".to_string())),
                     Some(date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())),
                     Some(date::Date::Date(NaiveDate::from_ymd_opt(2023, 4, 20).unwrap())),
                     Some(entry::account_servicer_reference::AccountServicerReference::new("012X123456789012".to_string())),
-                    entry::bank_transaction_code::BankTransactionCode::new(
+                    Some(entry::bank_transaction_code::BankTransactionCode::new(
                         Some(entry::bank_transaction_code::Domain::new(
                             "PMNT".to_string(),
                             entry::bank_transaction_code::Family::new("RCDT".to_string(), "XBCT".to_string())
@@ -349,7 +360,7 @@ mod tests {
                             "BETAL. 3825-0123456789".to_string(),
                             Some("DBA".to_string())
                         ))
-                    ),
+                    )),
                     Some(entry::additional_information_indicator::AdditionalInformationIndicator::new(
                         Some(Identification::new("O1XXXXXXX67X1X".to_string()))
                     )),

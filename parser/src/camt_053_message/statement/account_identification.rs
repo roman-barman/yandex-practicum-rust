@@ -10,6 +10,14 @@ pub(in crate::camt_053_message) enum AccountIdentification {
     Other(AccountIdentificationOther),
 }
 
+impl AccountIdentification {
+    pub(crate) fn new_other(id: String) -> AccountIdentification {
+        AccountIdentification::Other(AccountIdentificationOther {
+            identification: Identification::new(id),
+        })
+    }
+}
+
 impl AsRef<str> for AccountIdentification {
     fn as_ref(&self) -> &str {
         match self {

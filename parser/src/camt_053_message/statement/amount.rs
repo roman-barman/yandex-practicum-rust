@@ -11,6 +11,15 @@ pub(crate) struct Amount {
     amount: Decimal,
 }
 
+impl From<&crate::mt_940_customer_statement_message::balance::Balance> for Amount {
+    fn from(value: &crate::mt_940_customer_statement_message::balance::Balance) -> Self {
+        Amount {
+            currency: Currency::new(value.get_currency_code().to_string()),
+            amount: value.get_amount().as_ref().clone(),
+        }
+    }
+}
+
 impl Amount {
     pub(crate) fn get_currency(&self) -> &Currency {
         &self.currency
@@ -19,17 +28,14 @@ impl Amount {
     pub(crate) fn get_amount(&self) -> Decimal {
         self.amount
     }
+
+    pub(crate) fn new(currency: Currency, amount: Decimal) -> Self {
+        Amount { currency, amount }
+    }
 }
 
 impl Display for Amount {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {}", self.amount, self.currency)
-    }
-}
-
-#[cfg(test)]
-impl Amount {
-    pub(crate) fn new(currency: Currency, amount: Decimal) -> Self {
-        Amount { currency, amount }
     }
 }

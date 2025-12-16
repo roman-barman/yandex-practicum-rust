@@ -11,6 +11,18 @@ pub(crate) struct BalanceType {
 }
 
 impl BalanceType {
+    pub(super) fn new_opening_balance() -> Self {
+        BalanceType {
+            code_or_proprietary: CodeOrProprietary::Code(OPENING_BALANCE_CODE.to_string()),
+        }
+    }
+
+    pub(super) fn new_closing_balance() -> Self {
+        BalanceType {
+            code_or_proprietary: CodeOrProprietary::Code(CLOSING_BALANCE_CODE.to_string()),
+        }
+    }
+
     pub(crate) fn is_opening_balance(&self) -> bool {
         self.get_code() == Some(OPENING_BALANCE_CODE)
     }

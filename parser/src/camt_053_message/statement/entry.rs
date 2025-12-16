@@ -1,5 +1,7 @@
+use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::statement::amount::*;
 use crate::camt_053_message::statement::credit_debit_identification::*;
+use crate::camt_053_message::statement::currency::Currency;
 use crate::camt_053_message::statement::date::*;
 use crate::camt_053_message::statement::entry::account_servicer_reference::*;
 use crate::camt_053_message::statement::entry::additional_information_indicator::AdditionalInformationIndicator;
@@ -27,7 +29,7 @@ pub(crate) struct Entry {
     #[serde(rename = "CdtDbtInd")]
     credit_debit_identification: CreditDebitIdentification,
     #[serde(rename = "Sts")]
-    status: Status,
+    status: Option<Status>,
     #[serde(rename = "BookgDt")]
     booking_date: Option<Date>,
     #[serde(rename = "ValDt")]
@@ -35,7 +37,7 @@ pub(crate) struct Entry {
     #[serde(rename = "AcctSvcrRef")]
     account_servicer_reference: Option<AccountServicerReference>,
     #[serde(rename = "BkTxCd")]
-    bank_transaction_code: BankTransactionCode,
+    bank_transaction_code: Option<BankTransactionCode>,
     #[serde(rename = "AddtlInfInd")]
     additional_information_indicator: Option<AdditionalInformationIndicator>,
     #[serde(rename = "NtryDtls")]
@@ -67,8 +69,49 @@ impl Entry {
         self.account_servicer_reference.as_ref()
     }
 
-    pub(crate) fn get_bank_transaction_code(&self) -> &BankTransactionCode {
-        &self.bank_transaction_code
+    pub(crate) fn get_bank_transaction_code(&self) -> Option<&BankTransactionCode> {
+        self.bank_transaction_code.as_ref()
+    }
+
+    pub(super) fn from_mt_940(value: &Mt940CustomerStatementMessage) -> Option<Vec<Entry>> {
+        if value.get_statement_lines().is_none() {
+            return None;
+        }
+
+        let mut result = vec![];
+        let currency = value.get_opening_balance().get_currency_code().as_ref();
+
+        for statement in value.get_statement_lines().unwrap() {
+            let value_date = Some(Date::from(statement.get_value_date()));
+            let booking_date = statement.get_entry_date().map(Date::from);
+            let credit_debit_identification =
+                CreditDebitIdentification::from(statement.get_debit_credit_mark());
+            let amount = Amount::new(
+                Currency::new(currency.to_string()),
+                statement.get_amount().as_ref().clone(),
+            );
+            let account_servicer_reference = Some(AccountServicerReference::from(
+                statement.get_account_owner_ref(),
+            ));
+            result.push(Entry {
+                reference: None,
+                amount,
+                credit_debit_identification,
+                status: None,
+                booking_date,
+                value_date,
+                account_servicer_reference,
+                bank_transaction_code: None,
+                additional_information_indicator: None,
+                entry_details: None,
+            })
+        }
+
+        if result.is_empty() {
+            None
+        } else {
+            Some(result)
+        }
     }
 }
 
@@ -83,7 +126,9 @@ impl Display for Entry {
             "- Credit/debit identification: {}",
             self.credit_debit_identification
         )?;
-        writeln!(f, "- Status: {}", self.status)?;
+        if let Some(status) = &self.status {
+            writeln!(f, "- Status: {}", status)?;
+        }
         if let Some(booking_date) = &self.booking_date {
             writeln!(f, "- Booking date: {}", booking_date)?;
         }
@@ -97,8 +142,10 @@ impl Display for Entry {
                 account_servicer_reference
             )?;
         }
-        writeln!(f, "- Bank transaction code")?;
-        write!(indented(f), "{}", self.bank_transaction_code)?;
+        if let Some(bank_transaction_code) = &self.bank_transaction_code {
+            writeln!(f, "- Bank transaction code")?;
+            write!(indented(f), "{}", bank_transaction_code)?;
+        }
         if let Some(additional_information_indicator) = &self.additional_information_indicator {
             writeln!(f, "- Additional information indicator")?;
             write!(indented(f), "{}", additional_information_indicator)?;
@@ -119,11 +166,11 @@ impl Entry {
         reference: Option<EntryReference>,
         amount: Amount,
         credit_debit_identification: CreditDebitIdentification,
-        status: Status,
+        status: Option<Status>,
         booking_date: Option<Date>,
         value_date: Option<Date>,
         account_servicer_reference: Option<AccountServicerReference>,
-        bank_transaction_code: BankTransactionCode,
+        bank_transaction_code: Option<BankTransactionCode>,
         additional_information_indicator: Option<AdditionalInformationIndicator>,
         entry_details: Option<Vec<EntryDetails>>,
     ) -> Self {

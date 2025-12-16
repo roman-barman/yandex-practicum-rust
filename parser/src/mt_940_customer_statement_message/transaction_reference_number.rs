@@ -5,7 +5,13 @@ use std::io::Write;
 const TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct TransactionReferenceNumber(String);
+pub(crate) struct TransactionReferenceNumber(String);
+
+impl AsRef<str> for TransactionReferenceNumber {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 impl TransactionReferenceNumber {
     pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -40,7 +46,7 @@ impl Display for TransactionReferenceNumber {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum TransactionReferenceNumberParseError {
+pub(crate) enum TransactionReferenceNumberParseError {
     Empty,
     TooLong,
     InvalidFormat,

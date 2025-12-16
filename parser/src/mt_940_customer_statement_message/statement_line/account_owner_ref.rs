@@ -4,7 +4,13 @@ use std::fmt::Display;
 const ACCOUNT_OWNER_REF_MAX_LENGTH: usize = 16;
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) struct AccountOwnerRef(String);
+pub(crate) struct AccountOwnerRef(String);
+
+impl AsRef<str> for AccountOwnerRef {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 impl AccountOwnerRef {
     pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -34,7 +40,7 @@ impl Display for AccountOwnerRef {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum AccountOwnerRefParseError {
+pub(crate) enum AccountOwnerRefParseError {
     Empty,
     TooLong,
 }

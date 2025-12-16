@@ -17,9 +17,9 @@ use std::io::Write;
 use std::num::ParseIntError;
 use std::ops::Add;
 
-mod account_owner_ref;
+pub(crate) mod account_owner_ref;
 mod bank_ref;
-mod credit_debit_mark;
+pub(crate) mod credit_debit_mark;
 mod funds_code;
 mod identification_code;
 pub(crate) mod supplementary_details;
@@ -27,7 +27,7 @@ mod transaction_type;
 const ENTRY_DATE_LENGTH: usize = 4;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct StatementLine {
+pub(crate) struct StatementLine {
     value_date: Date,
     entry_date: Option<Date>,
     debit_credit_mark: CreditDebitMark,
@@ -56,10 +56,9 @@ impl StatementLine {
                 .get_account_servicer_reference()
                 .map_or("NOREF", |account_owner_ref| account_owner_ref.as_ref()),
         )?;
-        let information_to_account_owner_from_code =
-            InformationToAccountOwner::from_bank_transaction_code(
-                value.get_bank_transaction_code(),
-            );
+        let information_to_account_owner_from_code = value
+            .get_bank_transaction_code()
+            .map_or(None, InformationToAccountOwner::from_bank_transaction_code);
 
         for entry_details in value
             .get_entry_details()
@@ -111,6 +110,26 @@ impl StatementLine {
         } else {
             Ok(result)
         }
+    }
+
+    pub(crate) fn get_value_date(&self) -> &Date {
+        &self.value_date
+    }
+
+    pub(crate) fn get_entry_date(&self) -> Option<&Date> {
+        self.entry_date.as_ref()
+    }
+
+    pub(crate) fn get_debit_credit_mark(&self) -> &CreditDebitMark {
+        &self.debit_credit_mark
+    }
+
+    pub(crate) fn get_amount(&self) -> &Amount {
+        &self.amount
+    }
+
+    pub(crate) fn get_account_owner_ref(&self) -> &AccountOwnerRef {
+        &self.account_owner_ref
     }
 
     pub(super) fn add_supplementary_details(
@@ -407,7 +426,7 @@ fn read_bank_ref(
 }
 
 #[derive(Debug)]
-pub(super) enum StatementLineParseError {
+pub(crate) enum StatementLineParseError {
     Empty,
     InvalidFormat(Option<Box<dyn Error>>),
 }

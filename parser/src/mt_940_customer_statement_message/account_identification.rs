@@ -5,7 +5,13 @@ use std::io::Write;
 const ACCOUNT_IDENTIFICATION_MAX_LENGTH: usize = 35;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct AccountIdentification(String);
+pub(crate) struct AccountIdentification(String);
+
+impl AsRef<str> for AccountIdentification {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 impl AccountIdentification {
     pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -34,7 +40,7 @@ impl Display for AccountIdentification {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum AccountIdentificationParseError {
+pub(crate) enum AccountIdentificationParseError {
     Empty,
     TooLong,
 }

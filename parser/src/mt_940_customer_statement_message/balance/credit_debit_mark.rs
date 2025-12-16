@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq)]
-pub(super) enum CreditDebitMark {
+pub(crate) enum CreditDebitMark {
     Credit,
     Debit,
 }
@@ -51,7 +51,7 @@ impl Display for CreditDebitMark {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum CreditDebitMarkParseError {
+pub(crate) enum CreditDebitMarkParseError {
     InvalidValue,
 }
 

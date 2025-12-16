@@ -4,7 +4,13 @@ use std::fmt::{Display, Formatter};
 const CURRENCY_CODE_LENGTH: usize = 3;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct CurrencyCode(String);
+pub(crate) struct CurrencyCode(String);
+
+impl AsRef<str> for CurrencyCode {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 impl CurrencyCode {
     pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -36,7 +42,7 @@ impl Display for CurrencyCode {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum CurrencyCodeParseError {
+pub(crate) enum CurrencyCodeParseError {
     InvalidLength,
     InvalidFormat,
 }

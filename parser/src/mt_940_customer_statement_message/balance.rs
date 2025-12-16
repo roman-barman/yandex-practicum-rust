@@ -1,4 +1,4 @@
-mod credit_debit_mark;
+pub(crate) mod credit_debit_mark;
 mod currency_code;
 pub(super) mod state;
 
@@ -13,7 +13,7 @@ use std::fmt::{Display, Formatter};
 use std::io::Write;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct Balance {
+pub(crate) struct Balance {
     debit_credit_mark: CreditDebitMark,
     date: Date,
     currency_code: CurrencyCode,
@@ -56,6 +56,22 @@ impl Balance {
     pub(super) fn get_state(&self) -> Option<&State> {
         self.state.as_ref()
     }
+
+    pub(crate) fn get_currency_code(&self) -> &CurrencyCode {
+        &self.currency_code
+    }
+
+    pub(crate) fn get_amount(&self) -> &Amount {
+        &self.amount
+    }
+
+    pub(crate) fn get_credit_debit_mark(&self) -> &CreditDebitMark {
+        &self.debit_credit_mark
+    }
+
+    pub(crate) fn get_date(&self) -> &Date {
+        &self.date
+    }
 }
 
 impl TryFrom<&str> for Balance {
@@ -95,7 +111,7 @@ impl Display for Balance {
 }
 
 #[derive(Debug)]
-pub(super) enum BalanceParseError {
+pub(crate) enum BalanceParseError {
     Empty,
     InvalidFormat(Option<Box<dyn Error>>),
 }

@@ -6,7 +6,13 @@ use std::str::FromStr;
 const AMOUNT_MAX_LENGTH: usize = 15;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct Amount(Decimal);
+pub(crate) struct Amount(Decimal);
+
+impl AsRef<Decimal> for Amount {
+    fn as_ref(&self) -> &Decimal {
+        &self.0
+    }
+}
 
 impl Amount {
     pub(super) fn write_to<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -51,7 +57,7 @@ impl Display for Amount {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum AmountParseError {
+pub(crate) enum AmountParseError {
     Empty,
     TooLong,
     InvalidFormat,

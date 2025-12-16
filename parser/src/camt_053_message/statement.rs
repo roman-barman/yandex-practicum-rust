@@ -13,6 +13,7 @@ pub(super) mod postal_address;
 pub(super) mod sequence_number;
 pub(super) mod transactions_summary;
 
+use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::creation_date_time::*;
 use crate::camt_053_message::identification::*;
 use crate::camt_053_message::statement::account::*;
@@ -45,6 +46,42 @@ pub struct Statement {
     transactions_summary: Option<TransactionsSummary>,
     #[serde(rename = "Ntry")]
     entries: Option<Vec<Entry>>,
+}
+
+impl From<&Mt940CustomerStatementMessage> for Statement {
+    fn from(value: &Mt940CustomerStatementMessage) -> Self {
+        let identification = Identification::new(
+            value
+                .get_transaction_reference_number()
+                .as_ref()
+                .to_string(),
+        );
+        let electronic_sequence_number = SequenceNumber::new(
+            value.get_statement_sequence_number().get_statement_number() as usize,
+        );
+        let legal_sequence_number = value
+            .get_statement_sequence_number()
+            .get_sequence_number()
+            .map(|val| SequenceNumber::new(val as usize));
+        let creation_date_time = CreationDateTime::now();
+        let account = Account::from(value);
+        let balances = vec![
+            Balance::from_opening_balance(value.get_opening_balance()),
+            Balance::from_closing_balance(value.get_closing_balance()),
+        ];
+        let entries = Entry::from_mt_940(value);
+        Self {
+            identification,
+            electronic_sequence_number,
+            legal_sequence_number,
+            creation_date_time,
+            from_to_date: None,
+            account,
+            balances,
+            transactions_summary: None,
+            entries,
+        }
+    }
 }
 
 impl Statement {

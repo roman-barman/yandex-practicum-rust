@@ -5,7 +5,7 @@ use std::fmt::{Display, Formatter};
 pub(super) const CREDIT_DEBIT_MARK_MAX_LENGTH: usize = 2;
 
 #[derive(Debug, PartialEq, Clone)]
-pub(super) enum CreditDebitMark {
+pub(crate) enum CreditDebitMark {
     Credit,
     Debit,
     ReversalOfCredit,
@@ -69,7 +69,7 @@ impl Display for CreditDebitMark {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum CreditDebitMarkParseError {
+pub(crate) enum CreditDebitMarkParseError {
     Empty,
     TooLong,
     InvalidValue,

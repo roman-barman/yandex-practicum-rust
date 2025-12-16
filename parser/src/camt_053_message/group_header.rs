@@ -1,5 +1,6 @@
 use crate::camt_053_message::creation_date_time::*;
 use crate::camt_053_message::identification::Identification;
+use crate::mt_940_customer_statement_message::transaction_reference_number::TransactionReferenceNumber;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -9,6 +10,15 @@ pub(super) struct GroupHeader {
     message_identification: Identification,
     #[serde(rename = "CreDtTm")]
     creation_date_time: CreationDateTime,
+}
+
+impl From<&TransactionReferenceNumber> for GroupHeader {
+    fn from(value: &TransactionReferenceNumber) -> Self {
+        Self {
+            message_identification: Identification::new(value.as_ref().to_string()),
+            creation_date_time: CreationDateTime::now(),
+        }
+    }
 }
 
 impl Display for GroupHeader {

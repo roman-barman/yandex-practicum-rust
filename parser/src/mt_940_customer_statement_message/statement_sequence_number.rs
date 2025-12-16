@@ -6,7 +6,7 @@ const SEQUENCE_NUMBER_MAX_LENGTH: usize = 5;
 const STATEMENT_NUMBER_MAX_LENGTH: usize = 5;
 
 #[derive(Debug, PartialEq)]
-pub(super) struct StatementSequenceNumber {
+pub(crate) struct StatementSequenceNumber {
     statement_number: u16,
     sequence_number: Option<u16>,
 }
@@ -25,6 +25,14 @@ impl StatementSequenceNumber {
                 .as_bytes(),
             )
         }
+    }
+
+    pub(crate) fn get_statement_number(&self) -> u16 {
+        self.statement_number
+    }
+
+    pub(crate) fn get_sequence_number(&self) -> Option<u16> {
+        self.sequence_number
     }
 }
 
@@ -86,7 +94,7 @@ impl Display for StatementSequenceNumber {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum StatementSequenceNumberParseError {
+pub(crate) enum StatementSequenceNumberParseError {
     Empty,
     InvalidStatementSequenceNumberFormat,
     StatementNumberTooLong,
