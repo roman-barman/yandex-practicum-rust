@@ -1,3 +1,11 @@
+//! Parser and converter for bank statement formats (MT940 and CAMT.053).
+//!
+//! This crate provides:
+//! - Parsers for SWIFT MT940 and ISO 20022 CAMT.053 statements
+//! - Converters between supported formats
+//! - A normalized `Transaction` type and a `TransactionProvider` trait
+//!
+//! Public types are re-exported at the crate root for convenience.
 mod camt_053_message;
 mod message_writer;
 mod mt_940_customer_statement_message;

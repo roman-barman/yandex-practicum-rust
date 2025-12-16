@@ -6,6 +6,10 @@ pub struct Camt053MessageError {
     inner: Option<Box<dyn Error>>,
 }
 
+/// An error that can occur when reading or writing a CAMT.053 message.
+///
+/// The error keeps a human‑readable `details` message and may wrap
+/// an underlying error in `inner` for additional context.
 impl Display for Camt053MessageError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(inner) = self.inner.as_deref() {

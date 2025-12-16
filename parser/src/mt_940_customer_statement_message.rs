@@ -39,6 +39,11 @@ const STATEMENT_LINE_INFO_TO_ACCOUNT_OWNER_TAG: &str = ":86S";
 const CLOSING_AVAILABLE_BALANCE_TAG: &str = ":64:";
 const FORWARD_AVAILABLE_BALANCE_TAG: &str = ":65:";
 
+/// An MT940 Customer Statement Message.
+///
+/// This type represents a parsed SWIFT MT940 statement. It can be created
+/// by reading a plain-text MT940 stream via [`read_from`], and it implements
+/// [`MessageWriter`] to render back to MT940 format.
 pub struct Mt940CustomerStatementMessage {
     transaction_reference_number: TransactionReferenceNumber,
     related_reference: Option<RelatedReference>,
@@ -223,6 +228,17 @@ impl MessageWriter for Mt940CustomerStatementMessage {
 }
 
 impl Mt940CustomerStatementMessage {
+    /// Reads MT940 messages from the given reader.
+    ///
+    /// The input may contain one or more MT940 statements separated by
+    /// empty lines. Non‑tag lines at the beginning are ignored until a first
+    /// tag is found.
+    ///
+    /// Parameters:
+    /// - `reader`: a text source containing MT940 data.
+    ///
+    /// Returns a vector of parsed messages or an error describing why parsing
+    /// failed.
     pub fn read_from<T: Read>(
         reader: T,
     ) -> Result<Vec<Self>, Mt940CustomerStatementMessageReadError> {

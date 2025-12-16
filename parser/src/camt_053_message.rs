@@ -14,6 +14,11 @@ mod group_header;
 mod identification;
 pub(crate) mod statement;
 
+/// A CAMT.053 (Bank-to-Customer Statement) message.
+///
+/// This type can be constructed by parsing XML (see [`read_from`]) or by
+/// converting from an MT940 message. It also implements [`MessageWriter`] to
+/// serialize itself back to CAMT.053 XML.
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Camt053Message {
     #[serde(rename = "GrpHdr")]
@@ -80,11 +85,19 @@ impl MessageWriter for Camt053Message {
 }
 
 impl Camt053Message {
+    /// Reads and deserializes a CAMT.053 message from the given reader.
+    ///
+    /// Parameters:
+    /// - `reader`: a source of CAMT.053 XML data.
+    ///
+    /// Returns the parsed [`Camt053Message`] or a [`Camt053MessageError`]
+    /// if the input is not valid CAMT.053 XML.
     pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageError> {
         let result: DocumentDeserialization = serde_xml_rs::from_reader(reader)?;
         Ok(result.camt053message)
     }
 
+    /// Returns a read-only slice of statements contained in the message.
     pub fn get_statements(&self) -> &[Statement] {
         self.statements.as_slice()
     }

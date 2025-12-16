@@ -20,6 +20,7 @@ pub struct Mt940CustomerStatementMessageReadError {
 }
 
 impl Mt940CustomerStatementMessageReadError {
+    /// Creates an error indicating that the MT940 message has an invalid format.
     pub(super) fn invalid_format() -> Self {
         Self {
             details: "Message has invalid format".to_string(),
@@ -27,6 +28,7 @@ impl Mt940CustomerStatementMessageReadError {
         }
     }
 
+    /// Returns the underlying error cause, if any.
     pub fn inner(&self) -> Option<&dyn Error> {
         self.inner.as_deref()
     }
