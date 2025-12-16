@@ -31,3 +31,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 See also
 - Workspace README with more details and examples: `../README.md`
 - CLI tools using this library: `../converter` and `../comparer`
+
+Examples folder
+- You can run ready-to-use examples via Cargo:
+  - CAMT.053: `cargo run -p parser --example camt053_read_write`
+  - MT940: `cargo run -p parser --example mt940_read_write`
+  These examples read files from `file_examples/` (workspace root) and print the parsed content back to stdout.
+  For MT940, you may pass a specific sample file path, e.g.:
+  `cargo run -p parser --example mt940_read_write "file_examples/mt940/MT_940 aiophotoz.mt940"`
