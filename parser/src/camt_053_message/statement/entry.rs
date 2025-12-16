@@ -74,21 +74,17 @@ impl Entry {
     }
 
     pub(super) fn from_mt_940(value: &Mt940CustomerStatementMessage) -> Option<Vec<Entry>> {
-        if value.get_statement_lines().is_none() {
-            return None;
-        }
-
         let mut result = vec![];
         let currency = value.get_opening_balance().get_currency_code().as_ref();
 
-        for statement in value.get_statement_lines().unwrap() {
+        for statement in value.get_statement_lines()? {
             let value_date = Some(Date::from(statement.get_value_date()));
             let booking_date = statement.get_entry_date().map(Date::from);
             let credit_debit_identification =
                 CreditDebitIdentification::from(statement.get_debit_credit_mark());
             let amount = Amount::new(
                 Currency::new(currency.to_string()),
-                statement.get_amount().as_ref().clone(),
+                *statement.get_amount().as_ref(),
             );
             let account_servicer_reference = Some(AccountServicerReference::from(
                 statement.get_account_owner_ref(),

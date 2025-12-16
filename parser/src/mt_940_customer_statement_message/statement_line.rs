@@ -58,7 +58,7 @@ impl StatementLine {
         )?;
         let information_to_account_owner_from_code = value
             .get_bank_transaction_code()
-            .map_or(None, InformationToAccountOwner::from_bank_transaction_code);
+            .and_then(InformationToAccountOwner::from_bank_transaction_code);
 
         for entry_details in value
             .get_entry_details()

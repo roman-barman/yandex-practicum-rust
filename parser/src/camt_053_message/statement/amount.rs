@@ -15,7 +15,7 @@ impl From<&crate::mt_940_customer_statement_message::balance::Balance> for Amoun
     fn from(value: &crate::mt_940_customer_statement_message::balance::Balance) -> Self {
         Amount {
             currency: Currency::new(value.get_currency_code().to_string()),
-            amount: value.get_amount().as_ref().clone(),
+            amount: *value.get_amount().as_ref(),
         }
     }
 }

@@ -12,7 +12,7 @@ pub(crate) enum Date {
 
 impl From<&crate::mt_940_customer_statement_message::date::Date> for Date {
     fn from(value: &crate::mt_940_customer_statement_message::date::Date) -> Self {
-        Date::Date(value.as_ref().clone())
+        Date::Date(*value.as_ref())
     }
 }
 

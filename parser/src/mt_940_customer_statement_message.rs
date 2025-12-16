@@ -9,6 +9,7 @@ pub(crate) mod statement_line;
 pub(crate) mod statement_sequence_number;
 pub(crate) mod transaction_reference_number;
 
+use crate::MessageWriter;
 use crate::camt_053_message::statement::Statement;
 use crate::mt_940_customer_statement_message::account_identification::*;
 use crate::mt_940_customer_statement_message::balance::state::*;
@@ -131,6 +132,78 @@ impl TryFrom<&Statement> for Mt940CustomerStatementMessage {
         }
 
         builder.build()
+    }
+}
+
+impl MessageWriter for Mt940CustomerStatementMessage {
+    type Error = std::io::Error;
+    fn write_to<W: Write>(&self, writer: &mut W) -> Result<(), Self::Error> {
+        write!(writer, "{}", TRANSACTION_REFERENCE_NUMBER_TAG)?;
+        self.transaction_reference_number.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref related_reference) = self.related_reference {
+            write!(writer, "{}", RELATED_REFERENCE_TAG)?;
+            related_reference.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        write!(writer, "{}", ACCOUNT_IDENTIFICATION_TAG)?;
+        self.account_identification.write_to(writer)?;
+        writeln!(writer)?;
+
+        write!(writer, "{}", STATEMENT_SEQUENCE_NUMBER_TAG)?;
+        self.statement_sequence_no.write_to(writer)?;
+        writeln!(writer)?;
+
+        match self.opening_balance.get_state() {
+            Some(State::Final) => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
+            Some(State::Intermediate) => write!(writer, "{}", OPENING_M_BALANCE_TAG)?,
+            None => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
+        }
+        self.opening_balance.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref statement_lines) = self.statement_lines {
+            for statement_line in statement_lines {
+                write!(writer, "{}", STATEMENT_LINE_TAG)?;
+                statement_line.statement_line_write_to(writer)?;
+                writeln!(writer)?;
+                if let Some(info) = statement_line.get_information_to_account_owner() {
+                    write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
+                    info.write_to(writer)?;
+                    writeln!(writer)?;
+                }
+            }
+        }
+
+        match self.closing_balance.get_state() {
+            Some(State::Final) => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
+            Some(State::Intermediate) => write!(writer, "{}", CLOSING_M_BALANCE_TAG)?,
+            None => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
+        }
+        self.closing_balance.write_to(writer)?;
+        writeln!(writer)?;
+
+        if let Some(ref closing_available_balance) = self.closing_available_balance {
+            write!(writer, "{}", CLOSING_AVAILABLE_BALANCE_TAG)?;
+            closing_available_balance.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        if let Some(ref forward_available_balance) = self.forward_available_balance {
+            write!(writer, "{}", FORWARD_AVAILABLE_BALANCE_TAG)?;
+            forward_available_balance.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        if let Some(ref information_to_account_owner) = self.information_to_account_owner {
+            write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
+            information_to_account_owner.write_to(writer)?;
+            writeln!(writer)?;
+        }
+
+        Ok(())
     }
 }
 
@@ -428,75 +501,6 @@ impl Mt940CustomerStatementMessage {
         result.push(message);
 
         Ok(result)
-    }
-
-    pub fn write_to<T: Write>(&self, writer: &mut T) -> Result<(), std::io::Error> {
-        write!(writer, "{}", TRANSACTION_REFERENCE_NUMBER_TAG)?;
-        self.transaction_reference_number.write_to(writer)?;
-        writeln!(writer)?;
-
-        if let Some(ref related_reference) = self.related_reference {
-            write!(writer, "{}", RELATED_REFERENCE_TAG)?;
-            related_reference.write_to(writer)?;
-            writeln!(writer)?;
-        }
-
-        write!(writer, "{}", ACCOUNT_IDENTIFICATION_TAG)?;
-        self.account_identification.write_to(writer)?;
-        writeln!(writer)?;
-
-        write!(writer, "{}", STATEMENT_SEQUENCE_NUMBER_TAG)?;
-        self.statement_sequence_no.write_to(writer)?;
-        writeln!(writer)?;
-
-        match self.opening_balance.get_state() {
-            Some(State::Final) => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
-            Some(State::Intermediate) => write!(writer, "{}", OPENING_M_BALANCE_TAG)?,
-            None => write!(writer, "{}", OPENING_F_BALANCE_TAG)?,
-        }
-        self.opening_balance.write_to(writer)?;
-        writeln!(writer)?;
-
-        if let Some(ref statement_lines) = self.statement_lines {
-            for statement_line in statement_lines {
-                write!(writer, "{}", STATEMENT_LINE_TAG)?;
-                statement_line.statement_line_write_to(writer)?;
-                writeln!(writer)?;
-                if let Some(info) = statement_line.get_information_to_account_owner() {
-                    write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
-                    info.write_to(writer)?;
-                    writeln!(writer)?;
-                }
-            }
-        }
-
-        match self.closing_balance.get_state() {
-            Some(State::Final) => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
-            Some(State::Intermediate) => write!(writer, "{}", CLOSING_M_BALANCE_TAG)?,
-            None => write!(writer, "{}", CLOSING_F_BALANCE_TAG)?,
-        }
-        self.closing_balance.write_to(writer)?;
-        writeln!(writer)?;
-
-        if let Some(ref closing_available_balance) = self.closing_available_balance {
-            write!(writer, "{}", CLOSING_AVAILABLE_BALANCE_TAG)?;
-            closing_available_balance.write_to(writer)?;
-            writeln!(writer)?;
-        }
-
-        if let Some(ref forward_available_balance) = self.forward_available_balance {
-            write!(writer, "{}", FORWARD_AVAILABLE_BALANCE_TAG)?;
-            forward_available_balance.write_to(writer)?;
-            writeln!(writer)?;
-        }
-
-        if let Some(ref information_to_account_owner) = self.information_to_account_owner {
-            write!(writer, "{}", INFO_TO_ACCOUNT_OWNER_TAG)?;
-            information_to_account_owner.write_to(writer)?;
-            writeln!(writer)?;
-        }
-
-        Ok(())
     }
 
     pub(crate) fn get_transaction_reference_number(&self) -> &TransactionReferenceNumber {

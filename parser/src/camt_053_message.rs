@@ -1,7 +1,7 @@
-use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::error::Camt053MessageError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
+use crate::{MessageWriter, Mt940CustomerStatementMessage};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::io::{Read, Write};
@@ -43,13 +43,9 @@ impl Display for Camt053Message {
     }
 }
 
-impl Camt053Message {
-    pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageError> {
-        let result: DocumentDeserialization = serde_xml_rs::from_reader(reader)?;
-        Ok(result.camt053message)
-    }
-
-    pub fn write_to<T: Write>(&self, writer: T) -> Result<(), Camt053MessageError> {
+impl MessageWriter for Camt053Message {
+    type Error = Camt053MessageError;
+    fn write_to<W: Write>(&self, writer: &mut W) -> Result<(), Self::Error> {
         let config = serde_xml_rs::SerdeXml::new()
             .emitter(
                 EmitterConfig::new()
@@ -64,6 +60,13 @@ impl Camt053Message {
             },
         )?;
         Ok(())
+    }
+}
+
+impl Camt053Message {
+    pub fn read_from<T: Read>(reader: T) -> Result<Self, Camt053MessageError> {
+        let result: DocumentDeserialization = serde_xml_rs::from_reader(reader)?;
+        Ok(result.camt053message)
     }
 
     pub fn get_statements(&self) -> &[Statement] {
