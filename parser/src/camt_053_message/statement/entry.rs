@@ -1,4 +1,3 @@
-use crate::Mt940CustomerStatementMessage;
 use crate::camt_053_message::statement::amount::*;
 use crate::camt_053_message::statement::credit_debit_identification::*;
 use crate::camt_053_message::statement::currency::Currency;
@@ -9,6 +8,8 @@ use crate::camt_053_message::statement::entry::bank_transaction_code::*;
 use crate::camt_053_message::statement::entry::entry_details::EntryDetails;
 use crate::camt_053_message::statement::entry::entry_reference::*;
 use crate::camt_053_message::statement::entry::status::*;
+use crate::{Mt940CustomerStatementMessage, Transaction, TransactionType};
+use chrono::Local;
 use indenter::indented;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Write};
@@ -45,6 +46,32 @@ pub(crate) struct Entry {
 }
 
 impl Entry {
+    pub(crate) fn to_transaction(&self) -> Transaction {
+        let date = if let Some(date) = &self.value_date {
+            date.to_date()
+        } else {
+            Local::now().naive_local().date()
+        };
+        let account_owner =
+            if let Some(account_servicer_reference) = &self.account_servicer_reference {
+                account_servicer_reference.to_string()
+            } else {
+                "UNKNOWN".to_string()
+            };
+        let transaction_type = if self.credit_debit_identification.is_credit() {
+            TransactionType::Credit
+        } else {
+            TransactionType::Debit
+        };
+        Transaction::new(
+            self.amount.get_amount(),
+            self.amount.get_currency().to_string(),
+            date,
+            account_owner,
+            transaction_type,
+        )
+    }
+
     pub(crate) fn get_entry_details(&self) -> Option<&Vec<EntryDetails>> {
         self.entry_details.as_ref()
     }

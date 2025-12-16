@@ -1,3 +1,4 @@
+use crate::Transaction;
 use crate::camt_053_message::statement::entry::Entry;
 use crate::mt_940_customer_statement_message::amount::*;
 use crate::mt_940_customer_statement_message::date::*;
@@ -110,6 +111,22 @@ impl StatementLine {
         } else {
             Ok(result)
         }
+    }
+
+    pub(crate) fn to_transaction(&self, currency: String) -> Transaction {
+        let transaction_type = match self.debit_credit_mark {
+            CreditDebitMark::Debit => crate::transaction::TransactionType::Debit,
+            CreditDebitMark::Credit => crate::transaction::TransactionType::Credit,
+            CreditDebitMark::ReversalOfCredit => crate::transaction::TransactionType::Debit,
+            CreditDebitMark::ReversalOfDebit => crate::transaction::TransactionType::Credit,
+        };
+        Transaction::new(
+            *self.amount.as_ref(),
+            currency,
+            *self.value_date.as_ref(),
+            self.account_owner_ref.to_string(),
+            transaction_type,
+        )
     }
 
     pub(crate) fn get_value_date(&self) -> &Date {

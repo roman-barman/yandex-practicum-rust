@@ -1,7 +1,7 @@
 use crate::camt_053_message::error::Camt053MessageError;
 use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
-use crate::{MessageWriter, Mt940CustomerStatementMessage};
+use crate::{MessageWriter, Mt940CustomerStatementMessage, Transaction, TransactionProvider};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::io::{Read, Write};
@@ -19,6 +19,21 @@ pub struct Camt053Message {
     group_header: GroupHeader,
     #[serde(rename = "Stmt")]
     statements: Vec<Statement>,
+}
+
+impl TransactionProvider for Camt053Message {
+    fn get_transactions(&self) -> Vec<Transaction> {
+        let mut result = Vec::new();
+        for statement in &self.statements {
+            if let Some(entries) = statement.get_entries() {
+                for entry in entries {
+                    result.push(entry.to_transaction());
+                }
+            }
+        }
+
+        result
+    }
 }
 
 impl From<&Mt940CustomerStatementMessage> for Camt053Message {

@@ -10,6 +10,15 @@ pub(crate) enum Date {
     DateTime(NaiveDateTime),
 }
 
+impl Date {
+    pub(crate) fn to_date(&self) -> NaiveDate {
+        match self {
+            Date::Date(date) => *date,
+            Date::DateTime(datetime) => datetime.date(),
+        }
+    }
+}
+
 impl From<&crate::mt_940_customer_statement_message::date::Date> for Date {
     fn from(value: &crate::mt_940_customer_statement_message::date::Date) -> Self {
         Date::Date(*value.as_ref())

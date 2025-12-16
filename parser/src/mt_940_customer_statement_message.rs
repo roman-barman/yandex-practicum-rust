@@ -9,7 +9,6 @@ pub(crate) mod statement_line;
 pub(crate) mod statement_sequence_number;
 pub(crate) mod transaction_reference_number;
 
-use crate::MessageWriter;
 use crate::camt_053_message::statement::Statement;
 use crate::mt_940_customer_statement_message::account_identification::*;
 use crate::mt_940_customer_statement_message::balance::state::*;
@@ -21,6 +20,7 @@ use crate::mt_940_customer_statement_message::statement_line::supplementary_deta
 use crate::mt_940_customer_statement_message::statement_line::*;
 use crate::mt_940_customer_statement_message::statement_sequence_number::*;
 use crate::mt_940_customer_statement_message::transaction_reference_number::*;
+use crate::{MessageWriter, Transaction, TransactionProvider};
 use std::fmt::{Display, Formatter};
 use std::io::{BufRead, BufReader, Read, Write};
 
@@ -49,6 +49,18 @@ pub struct Mt940CustomerStatementMessage {
     closing_available_balance: Option<Balance>,
     forward_available_balance: Option<Balance>,
     information_to_account_owner: Option<InformationToAccountOwner>,
+}
+
+impl TransactionProvider for Mt940CustomerStatementMessage {
+    fn get_transactions(&self) -> Vec<Transaction> {
+        let mut res = vec![];
+        if let Some(lines) = &self.statement_lines {
+            for line in lines {
+                res.push(line.to_transaction(self.opening_balance.get_currency_code().to_string()));
+            }
+        }
+        res
+    }
 }
 
 impl Display for Mt940CustomerStatementMessage {
