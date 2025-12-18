@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct FundsCode(char);
@@ -27,18 +27,11 @@ impl Display for FundsCode {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub(super) enum FundsCodeParseError {
+#[derive(Debug, PartialEq, Error)]
+pub(crate) enum FundsCodeParseError {
+    #[error("Invalid funds code format")]
     InvalidFormat,
 }
-
-impl Display for FundsCodeParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Invalid funds code format")
-    }
-}
-
-impl Error for FundsCodeParseError {}
 
 #[cfg(test)]
 mod tests {

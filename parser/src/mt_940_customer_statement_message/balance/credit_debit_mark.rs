@@ -1,6 +1,6 @@
 use crate::camt_053_message::statement::credit_debit_identification::CreditDebitIdentification;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CreditDebitMark {
@@ -50,22 +50,11 @@ impl Display for CreditDebitMark {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum CreditDebitMarkParseError {
+    #[error("Invalid credit/debit mark")]
     InvalidValue,
 }
-
-impl std::fmt::Display for CreditDebitMarkParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            CreditDebitMarkParseError::InvalidValue => {
-                write!(f, "Invalid credit/debit mark")
-            }
-        }
-    }
-}
-
-impl Error for CreditDebitMarkParseError {}
 
 #[cfg(test)]
 mod tests {

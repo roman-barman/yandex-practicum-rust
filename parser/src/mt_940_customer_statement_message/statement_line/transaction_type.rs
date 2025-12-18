@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 #[derive(Debug, PartialEq, Clone)]
 pub(super) enum TransactionType {
@@ -39,20 +40,11 @@ impl Display for TransactionType {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub(super) enum TransactionTypeParseError {
+#[derive(Debug, PartialEq, Error)]
+pub(crate) enum TransactionTypeParseError {
+    #[error("Invalid transaction type value")]
     InvalidValue,
 }
-
-impl Display for TransactionTypeParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::InvalidValue => write!(f, "Invalid transaction type value"),
-        }
-    }
-}
-
-impl std::error::Error for TransactionTypeParseError {}
 
 #[cfg(test)]
 mod tests {

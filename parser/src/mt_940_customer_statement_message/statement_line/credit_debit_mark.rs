@@ -1,6 +1,6 @@
 use crate::camt_053_message::statement::credit_debit_identification::CreditDebitIdentification;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 pub(super) const CREDIT_DEBIT_MARK_MAX_LENGTH: usize = 2;
 
@@ -68,34 +68,18 @@ impl Display for CreditDebitMark {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum CreditDebitMarkParseError {
+    #[error("Credit/debit mark cannot be empty")]
     Empty,
+    #[error(
+        "Credit/debit mark cannot be longer than {} characters",
+        CREDIT_DEBIT_MARK_MAX_LENGTH
+    )]
     TooLong,
+    #[error("Invalid credit/debit mark")]
     InvalidValue,
 }
-
-impl Display for CreditDebitMarkParseError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        match self {
-            CreditDebitMarkParseError::InvalidValue => {
-                write!(f, "Invalid credit/debit mark")
-            }
-            CreditDebitMarkParseError::Empty => {
-                write!(f, "Credit/debit mark cannot be empty")
-            }
-            CreditDebitMarkParseError::TooLong => {
-                write!(
-                    f,
-                    "Credit/debit mark cannot be longer than {} characters",
-                    CREDIT_DEBIT_MARK_MAX_LENGTH
-                )
-            }
-        }
-    }
-}
-
-impl Error for CreditDebitMarkParseError {}
 
 #[cfg(test)]
 mod tests {

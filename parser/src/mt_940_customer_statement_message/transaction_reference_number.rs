@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fmt::Display;
 use std::io::Write;
+use thiserror::Error;
 
 const TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH: usize = 16;
 
@@ -45,32 +45,18 @@ impl Display for TransactionReferenceNumber {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum TransactionReferenceNumberParseError {
+    #[error("Transaction reference number cannot be empty")]
     Empty,
+    #[error(
+        "Transaction reference number cannot be longer than {} characters",
+        TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH
+    )]
     TooLong,
+    #[error("Transaction reference number has invalid format")]
     InvalidFormat,
 }
-
-impl Display for TransactionReferenceNumberParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TransactionReferenceNumberParseError::Empty => {
-                write!(f, "Transaction reference number cannot be empty")
-            }
-            TransactionReferenceNumberParseError::TooLong => write!(
-                f,
-                "Transaction reference number cannot be longer than {} characters",
-                TRANSACTION_REFERENCE_NUMBER_MAX_LENGTH
-            ),
-            TransactionReferenceNumberParseError::InvalidFormat => {
-                write!(f, "Transaction reference number has invalid format")
-            }
-        }
-    }
-}
-
-impl Error for TransactionReferenceNumberParseError {}
 
 #[cfg(test)]
 mod tests {

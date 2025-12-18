@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fmt::Display;
 use std::io::Write;
+use thiserror::Error;
 
 const RELATED_REFERENCE_MAX_LENGTH: usize = 16;
 
@@ -39,30 +39,18 @@ impl Display for RelatedReference {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(super) enum RelatedReferenceParseError {
+    #[error("Related reference cannot be empty")]
     Empty,
+    #[error(
+        "Related reference cannot be longer than {} characters",
+        RELATED_REFERENCE_MAX_LENGTH
+    )]
     TooLong,
+    #[error("Related reference has invalid format")]
     InvalidFormat,
 }
-
-impl Display for RelatedReferenceParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            RelatedReferenceParseError::Empty => write!(f, "Related reference cannot be empty"),
-            RelatedReferenceParseError::TooLong => write!(
-                f,
-                "Related reference cannot be longer than {} characters",
-                RELATED_REFERENCE_MAX_LENGTH
-            ),
-            RelatedReferenceParseError::InvalidFormat => {
-                write!(f, "Related reference has invalid format")
-            }
-        }
-    }
-}
-
-impl Error for RelatedReferenceParseError {}
 
 #[cfg(test)]
 mod tests {

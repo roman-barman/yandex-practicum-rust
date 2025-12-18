@@ -1,6 +1,6 @@
 use chrono::{Datelike, NaiveDate};
-use std::error::Error;
 use std::fmt::Display;
+use thiserror::Error;
 
 pub(super) const DATE_LENGTH: usize = 6;
 
@@ -90,24 +90,15 @@ impl Display for Date {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum DateParseError {
+    #[error("Date cannot be empty")]
     Empty,
+    #[error("Invalid date format")]
     InvalidFormat,
+    #[error("Invalid date")]
     InvalidValue,
 }
-
-impl Display for DateParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DateParseError::Empty => write!(f, "Date cannot be empty"),
-            DateParseError::InvalidFormat => write!(f, "Invalid date format"),
-            DateParseError::InvalidValue => write!(f, "Invalid date"),
-        }
-    }
-}
-
-impl Error for DateParseError {}
 
 #[cfg(test)]
 mod tests {

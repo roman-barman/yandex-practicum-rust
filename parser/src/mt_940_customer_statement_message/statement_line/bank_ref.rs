@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::Display;
+use thiserror::Error;
 
 const BANK_REF_MAX_LENGTH: usize = 16;
 
@@ -33,26 +33,13 @@ impl Display for BankRef {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub(super) enum BankRefParseError {
+#[derive(Debug, PartialEq, Error)]
+pub(crate) enum BankRefParseError {
+    #[error("Bank ref cannot be empty")]
     Empty,
+    #[error("Bank ref cannot be longer than {} characters", BANK_REF_MAX_LENGTH)]
     TooLong,
 }
-
-impl Display for BankRefParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BankRefParseError::Empty => write!(f, "Bank ref cannot be empty"),
-            BankRefParseError::TooLong => write!(
-                f,
-                "Bank ref cannot be longer than {} characters",
-                BANK_REF_MAX_LENGTH
-            ),
-        }
-    }
-}
-
-impl Error for BankRefParseError {}
 
 #[cfg(test)]
 mod tests {

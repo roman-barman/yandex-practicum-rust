@@ -3,6 +3,7 @@ use crate::camt_053_message::statement::entry::entry_details::TransactionDetails
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
+use thiserror::Error;
 
 const INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH: usize = 65;
 const INFORMATION_MAX_LENGTH: usize = 6;
@@ -137,28 +138,16 @@ impl Display for InformationToAccountOwner {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(super) enum InformationToAccountOwnerParseError {
+    #[error("Information to account owner cannot be empty")]
     Empty,
+    #[error(
+        "Information to account owner cannot be longer than {} characters",
+        INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH
+    )]
     TooLong,
 }
-
-impl Display for InformationToAccountOwnerParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            InformationToAccountOwnerParseError::Empty => {
-                write!(f, "Information to account owner cannot be empty")
-            }
-            InformationToAccountOwnerParseError::TooLong => write!(
-                f,
-                "Information to account owner cannot be longer than {} characters",
-                INFORMATION_TO_ACCOUNT_OWNER_MAX_LENGTH
-            ),
-        }
-    }
-}
-
-impl Error for InformationToAccountOwnerParseError {}
 
 #[derive(Debug, PartialEq)]
 pub(super) enum InformationToAccountOwnerError {

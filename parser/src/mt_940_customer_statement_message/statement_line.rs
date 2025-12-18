@@ -11,12 +11,12 @@ use crate::mt_940_customer_statement_message::statement_line::identification_cod
 use crate::mt_940_customer_statement_message::statement_line::supplementary_details::*;
 use crate::mt_940_customer_statement_message::statement_line::transaction_type::*;
 use chrono::NaiveDate;
-use std::any::Any;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::num::ParseIntError;
 use std::ops::Add;
+use thiserror::Error;
 
 pub(crate) mod account_owner_ref;
 mod bank_ref;
@@ -290,7 +290,7 @@ fn read_entry_date(
         return Ok(None);
     }
     if entry_date.len() != ENTRY_DATE_LENGTH {
-        return Err(StatementLineParseError::InvalidFormat(None));
+        return Err(StatementLineParseError::InvalidFormat);
     }
 
     let month = entry_date
@@ -305,8 +305,8 @@ fn read_entry_date(
         .collect::<String>()
         .parse::<u32>()?;
     let (year, _, _) = value_date.ymd_date();
-    let date = NaiveDate::from_ymd_opt(year, month, day)
-        .ok_or(StatementLineParseError::InvalidFormat(None))?;
+    let date =
+        NaiveDate::from_ymd_opt(year, month, day).ok_or(StatementLineParseError::InvalidFormat)?;
     *cursor += ENTRY_DATE_LENGTH;
     Ok(Some(Date::new(date)))
 }
@@ -321,11 +321,11 @@ fn read_debit_credit_mark(
         .take_while(|c| c.is_ascii_alphabetic())
         .collect::<String>();
     if value.is_empty() {
-        return Err(StatementLineParseError::InvalidFormat(None));
+        return Err(StatementLineParseError::InvalidFormat);
     }
 
     if value.len() > CREDIT_DEBIT_MARK_MAX_LENGTH + 1 {
-        return Err(StatementLineParseError::InvalidFormat(None));
+        return Err(StatementLineParseError::InvalidFormat);
     }
 
     let mut len = CREDIT_DEBIT_MARK_MAX_LENGTH;
@@ -382,7 +382,7 @@ fn read_transaction_type(
 ) -> Result<TransactionType, StatementLineParseError> {
     let transaction_type = line.chars().nth(*cursor);
     match transaction_type {
-        None => Err(StatementLineParseError::InvalidFormat(None)),
+        None => Err(StatementLineParseError::InvalidFormat),
         Some(transaction_type) => {
             *cursor += 1;
             Ok(TransactionType::try_from(&transaction_type)?)
@@ -438,103 +438,35 @@ fn read_bank_ref(
             bank_ref.strip_prefix("//").unwrap_or(""),
         )?))
     } else {
-        Err(StatementLineParseError::InvalidFormat(None))
+        Err(StatementLineParseError::InvalidFormat)
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum StatementLineParseError {
+    #[error("Statement line is empty")]
     Empty,
-    InvalidFormat(Option<Box<dyn Error>>),
+    #[error("Invalid format")]
+    InvalidFormat,
+    #[error("Invalid date")]
+    InvalidDate(#[from] DateParseError),
+    #[error("Invalid credit/debit mark")]
+    InvalidCreditDebitMark(#[from] CreditDebitMarkParseError),
+    #[error("Invalid transaction type")]
+    InvalidTransactionType(#[from] TransactionTypeParseError),
+    #[error("Invalid amount")]
+    InvalidAmount(#[from] AmountParseError),
+    #[error("Invalid funds code")]
+    InvalidFundsCode(#[from] FundsCodeParseError),
+    #[error("Invalid identification code")]
+    InvalidIdentificationCode(#[from] IdentificationCodeParseError),
+    #[error("Invalid bank reference")]
+    InvalidBankReference(#[from] BankRefParseError),
+    #[error("Invalid account owner reference")]
+    InvalidAccountOwnerReference(#[from] AccountOwnerRefParseError),
+    #[error("Invalid number format")]
+    InvalidNumberFormat(#[from] ParseIntError),
 }
-
-impl PartialEq for StatementLineParseError {
-    fn eq(&self, other: &Self) -> bool {
-        match self {
-            StatementLineParseError::Empty => matches!(other, StatementLineParseError::Empty),
-            StatementLineParseError::InvalidFormat(None) => {
-                matches!(other, StatementLineParseError::InvalidFormat(None))
-            }
-            StatementLineParseError::InvalidFormat(Some(err1)) => {
-                if let StatementLineParseError::InvalidFormat(Some(err2)) = other {
-                    (*err1).type_id() == (*err2).type_id()
-                } else {
-                    false
-                }
-            }
-        }
-    }
-}
-
-impl Display for StatementLineParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            StatementLineParseError::Empty => write!(f, "Statement line is empty"),
-            StatementLineParseError::InvalidFormat(None) => {
-                write!(f, "Statement line has invalid format")
-            }
-            StatementLineParseError::InvalidFormat(Some(err)) => {
-                write!(f, "Statement line has invalid format: {}", err)
-            }
-        }
-    }
-}
-
-impl From<DateParseError> for StatementLineParseError {
-    fn from(value: DateParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<CreditDebitMarkParseError> for StatementLineParseError {
-    fn from(value: CreditDebitMarkParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<TransactionTypeParseError> for StatementLineParseError {
-    fn from(value: TransactionTypeParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<AmountParseError> for StatementLineParseError {
-    fn from(value: AmountParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<FundsCodeParseError> for StatementLineParseError {
-    fn from(value: FundsCodeParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<AccountOwnerRefParseError> for StatementLineParseError {
-    fn from(value: AccountOwnerRefParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<BankRefParseError> for StatementLineParseError {
-    fn from(value: BankRefParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<IdentificationCodeParseError> for StatementLineParseError {
-    fn from(value: IdentificationCodeParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<ParseIntError> for StatementLineParseError {
-    fn from(value: ParseIntError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl Error for StatementLineParseError {}
 
 #[derive(Debug, PartialEq)]
 pub(super) enum StatementLineError {
@@ -611,7 +543,7 @@ mod tests {
             &Date::new(NaiveDate::from_ymd_opt(2023, 3, 1).unwrap()),
             &mut cursor,
         );
-        assert_eq!(result, Err(StatementLineParseError::InvalidFormat(None)));
+        assert_eq!(result, Err(StatementLineParseError::InvalidFormat));
     }
 
     #[test]
@@ -647,11 +579,11 @@ mod tests {
         let mut cursor = DATE_LENGTH + ENTRY_DATE_LENGTH;
         let data = "2303010228366336,2NTRFArbi/deposit//1323333800";
         let result = read_debit_credit_mark(data, &mut cursor);
-        assert_eq!(result, Err(StatementLineParseError::InvalidFormat(None)));
+        assert_eq!(result, Err(StatementLineParseError::InvalidFormat));
 
         let data = "2303010228CKPP366336,2NTRFArbi/deposit//1323333800";
         let result = read_debit_credit_mark(data, &mut cursor);
-        assert_eq!(result, Err(StatementLineParseError::InvalidFormat(None)));
+        assert_eq!(result, Err(StatementLineParseError::InvalidFormat));
     }
 
     #[test]
@@ -695,7 +627,7 @@ mod tests {
         let mut cursor = DATE_LENGTH + ENTRY_DATE_LENGTH + 10;
         let data = "2303010228CK366336,2";
         let result = read_transaction_type(data, &mut cursor);
-        assert_eq!(result, Err(StatementLineParseError::InvalidFormat(None)));
+        assert_eq!(result, Err(StatementLineParseError::InvalidFormat));
     }
 
     #[test]

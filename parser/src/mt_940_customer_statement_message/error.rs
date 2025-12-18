@@ -38,11 +38,6 @@ impl Mt940CustomerStatementMessageReadError {
             inner: None,
         }
     }
-
-    /// Returns the underlying error cause, if any.
-    pub fn inner(&self) -> Option<&dyn Error> {
-        self.inner.as_deref()
-    }
 }
 
 impl Display for Mt940CustomerStatementMessageReadError {

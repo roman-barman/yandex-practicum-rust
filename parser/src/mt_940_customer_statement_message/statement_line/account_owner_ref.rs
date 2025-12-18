@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::Display;
+use thiserror::Error;
 
 const ACCOUNT_OWNER_REF_MAX_LENGTH: usize = 16;
 
@@ -39,26 +39,16 @@ impl Display for AccountOwnerRef {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum AccountOwnerRefParseError {
+    #[error("Account owner ref cannot be empty")]
     Empty,
+    #[error(
+        "Account owner ref cannot be longer than {} characters",
+        ACCOUNT_OWNER_REF_MAX_LENGTH
+    )]
     TooLong,
 }
-
-impl Display for AccountOwnerRefParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AccountOwnerRefParseError::Empty => write!(f, "Account owner ref cannot be empty"),
-            AccountOwnerRefParseError::TooLong => write!(
-                f,
-                "Account owner ref cannot be longer than {} characters",
-                ACCOUNT_OWNER_REF_MAX_LENGTH
-            ),
-        }
-    }
-}
-
-impl Error for AccountOwnerRefParseError {}
 
 #[cfg(test)]
 mod tests {

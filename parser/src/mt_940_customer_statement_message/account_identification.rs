@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fmt::Display;
 use std::io::Write;
+use thiserror::Error;
 
 const ACCOUNT_IDENTIFICATION_MAX_LENGTH: usize = 35;
 
@@ -39,28 +39,16 @@ impl Display for AccountIdentification {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum AccountIdentificationParseError {
+    #[error("Account identification cannot be empty")]
     Empty,
+    #[error(
+        "Account identification cannot be longer than {} characters",
+        ACCOUNT_IDENTIFICATION_MAX_LENGTH
+    )]
     TooLong,
 }
-
-impl Display for AccountIdentificationParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AccountIdentificationParseError::Empty => {
-                write!(f, "Account identification cannot be empty")
-            }
-            AccountIdentificationParseError::TooLong => write!(
-                f,
-                "Account identification cannot be longer than {} characters",
-                ACCOUNT_IDENTIFICATION_MAX_LENGTH
-            ),
-        }
-    }
-}
-
-impl Error for AccountIdentificationParseError {}
 
 #[cfg(test)]
 mod tests {
