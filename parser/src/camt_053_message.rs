@@ -9,7 +9,7 @@ use std::io::{Read, Write};
 use xml::EmitterConfig;
 
 mod creation_date_time;
-pub mod error;
+pub(crate) mod error;
 mod group_header;
 mod identification;
 pub(crate) mod statement;

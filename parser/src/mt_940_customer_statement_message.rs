@@ -2,7 +2,7 @@ mod account_identification;
 mod amount;
 pub(crate) mod balance;
 pub(crate) mod date;
-pub mod error;
+pub(crate) mod error;
 mod information_to_account_owner;
 mod related_reference;
 pub(crate) mod statement_line;

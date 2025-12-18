@@ -67,7 +67,7 @@ impl Display for Account {
 
 #[cfg(test)]
 impl Account {
-    pub fn new(
+    pub(crate) fn new(
         identification: AccountIdentification,
         currency: Currency,
         name: Option<Name>,
