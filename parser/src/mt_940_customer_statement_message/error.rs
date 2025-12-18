@@ -28,6 +28,13 @@ impl Mt940CustomerStatementMessageReadError {
         }
     }
 
+    pub(super) fn unexpected() -> Self {
+        Self {
+            details: "Unexpected error occurred while parsing MT940 message".to_string(),
+            inner: None,
+        }
+    }
+
     /// Returns the underlying error cause, if any.
     pub fn inner(&self) -> Option<&dyn Error> {
         self.inner.as_deref()

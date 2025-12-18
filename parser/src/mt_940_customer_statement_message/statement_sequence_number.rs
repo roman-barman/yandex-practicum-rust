@@ -13,17 +13,10 @@ pub(crate) struct StatementSequenceNumber {
 
 impl StatementSequenceNumber {
     pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        if self.sequence_number.is_none() {
-            writer.write_all(self.statement_number.to_string().as_bytes())
-        } else {
-            writer.write_all(
-                format!(
-                    "{}/{}",
-                    self.statement_number,
-                    self.sequence_number.unwrap()
-                )
-                .as_bytes(),
-            )
+        match self.sequence_number {
+            None => writer.write_all(self.statement_number.to_string().as_bytes()),
+            Some(sequence_number) => writer
+                .write_all(format!("{}/{}", self.statement_number, sequence_number).as_bytes()),
         }
     }
 

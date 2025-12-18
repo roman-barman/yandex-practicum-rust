@@ -710,7 +710,7 @@ impl Mt940CustomerStatementMessageBuilder {
             Some(ref mut statement_lines) => {
                 statement_lines
                     .last_mut()
-                    .unwrap()
+                    .ok_or(Mt940CustomerStatementMessageReadError::unexpected())?
                     .add_supplementary_details(value)?;
             }
             None => {
@@ -728,7 +728,7 @@ impl Mt940CustomerStatementMessageBuilder {
             Some(ref mut statement_lines) => {
                 statement_lines
                     .last_mut()
-                    .unwrap()
+                    .ok_or(Mt940CustomerStatementMessageReadError::unexpected())?
                     .add_information_to_account_owner(value)?;
             }
             None => {
@@ -764,23 +764,24 @@ impl Mt940CustomerStatementMessageBuilder {
     fn build(
         self,
     ) -> Result<Mt940CustomerStatementMessage, Mt940CustomerStatementMessageReadError> {
-        if self.transaction_reference_number.is_none()
-            || self.account_identification.is_none()
-            || self.statement_sequence_no.is_none()
-            || self.opening_balance.is_none()
-            || self.closing_balance.is_none()
-        {
-            return Err(Mt940CustomerStatementMessageReadError::invalid_format());
-        }
-
         Ok(Mt940CustomerStatementMessage {
-            transaction_reference_number: self.transaction_reference_number.unwrap(),
+            transaction_reference_number: self
+                .transaction_reference_number
+                .ok_or(Mt940CustomerStatementMessageReadError::invalid_format())?,
             related_reference: self.related_reference,
-            account_identification: self.account_identification.unwrap(),
-            statement_sequence_no: self.statement_sequence_no.unwrap(),
-            opening_balance: self.opening_balance.unwrap(),
+            account_identification: self
+                .account_identification
+                .ok_or(Mt940CustomerStatementMessageReadError::invalid_format())?,
+            statement_sequence_no: self
+                .statement_sequence_no
+                .ok_or(Mt940CustomerStatementMessageReadError::invalid_format())?,
+            opening_balance: self
+                .opening_balance
+                .ok_or(Mt940CustomerStatementMessageReadError::invalid_format())?,
             statement_lines: self.statement_lines,
-            closing_balance: self.closing_balance.unwrap(),
+            closing_balance: self
+                .closing_balance
+                .ok_or(Mt940CustomerStatementMessageReadError::invalid_format())?,
             closing_available_balance: self.closing_available_balance,
             forward_available_balance: self.forward_available_balance,
             information_to_account_owner: self.information_to_account_owner,
