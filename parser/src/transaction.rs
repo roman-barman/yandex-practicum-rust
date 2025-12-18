@@ -74,6 +74,11 @@ impl Display for Transaction {
     }
 }
 
+/// A type that can provide a collection of normalized `Transaction`s.
+///
+/// Implement this trait for parsed statement structures to expose their
+/// transactions in a unified format consumable by other parts of the
+/// application (e.g. converters or comparers).
 pub trait TransactionProvider {
     /// Collects transactions contained in the type.
     ///
