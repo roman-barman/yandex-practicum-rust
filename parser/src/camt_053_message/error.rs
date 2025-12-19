@@ -1,6 +1,10 @@
 use std::{error::Error, fmt::Display};
 
 #[derive(Debug)]
+/// Error type returned when parsing or generating an ISO 20022 CAMT.053 message fails.
+///
+/// This error carries a human‑readable description in `details` and may wrap an
+/// underlying error in `inner` to provide additional context about the failure.
 pub struct Camt053MessageError {
     details: String,
     inner: Option<Box<dyn Error>>,

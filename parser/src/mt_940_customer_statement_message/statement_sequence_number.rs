@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
+use thiserror::Error;
 
 const SEQUENCE_NUMBER_MAX_LENGTH: usize = 5;
 const STATEMENT_NUMBER_MAX_LENGTH: usize = 5;
@@ -13,17 +13,10 @@ pub(crate) struct StatementSequenceNumber {
 
 impl StatementSequenceNumber {
     pub(super) fn write_to<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        if self.sequence_number.is_none() {
-            writer.write_all(self.statement_number.to_string().as_bytes())
-        } else {
-            writer.write_all(
-                format!(
-                    "{}/{}",
-                    self.statement_number,
-                    self.sequence_number.unwrap()
-                )
-                .as_bytes(),
-            )
+        match self.sequence_number {
+            None => writer.write_all(self.statement_number.to_string().as_bytes()),
+            Some(sequence_number) => writer
+                .write_all(format!("{}/{}", self.statement_number, sequence_number).as_bytes()),
         }
     }
 
@@ -93,46 +86,27 @@ impl Display for StatementSequenceNumber {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum StatementSequenceNumberParseError {
+    #[error("Empty statement sequence number")]
     Empty,
+    #[error("Invalid statement sequence number format")]
     InvalidStatementSequenceNumberFormat,
+    #[error(
+        "Statement number cannot be longer than {} characters",
+        STATEMENT_NUMBER_MAX_LENGTH
+    )]
     StatementNumberTooLong,
+    #[error("Invalid statement number format")]
     InvalidStatementNumberFormat,
+    #[error(
+        "Sequence number cannot be longer than {} characters",
+        SEQUENCE_NUMBER_MAX_LENGTH
+    )]
     SequenceNumberTooLong,
+    #[error("Invalid sequence number format")]
     InvalidSequenceNumberFormat,
 }
-
-impl Display for StatementSequenceNumberParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            StatementSequenceNumberParseError::Empty => {
-                write!(f, "Empty statement sequence number")
-            }
-            StatementSequenceNumberParseError::InvalidStatementSequenceNumberFormat => {
-                write!(f, "Invalid statement sequence number format")
-            }
-            StatementSequenceNumberParseError::StatementNumberTooLong => write!(
-                f,
-                "Statement number cannot be longer than {} characters",
-                STATEMENT_NUMBER_MAX_LENGTH
-            ),
-            StatementSequenceNumberParseError::InvalidStatementNumberFormat => {
-                write!(f, "Invalid statement number format")
-            }
-            StatementSequenceNumberParseError::SequenceNumberTooLong => write!(
-                f,
-                "Sequence number cannot be longer than {} characters",
-                SEQUENCE_NUMBER_MAX_LENGTH
-            ),
-            StatementSequenceNumberParseError::InvalidSequenceNumberFormat => {
-                write!(f, "Invalid sequence number format")
-            }
-        }
-    }
-}
-
-impl Error for StatementSequenceNumberParseError {}
 
 #[cfg(test)]
 mod tests {

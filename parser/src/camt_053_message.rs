@@ -3,13 +3,12 @@ use crate::camt_053_message::group_header::*;
 use crate::camt_053_message::statement::*;
 use crate::{MessageWriter, Mt940CustomerStatementMessage, Transaction, TransactionProvider};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::fmt::Display;
 use std::io::{Read, Write};
 use xml::EmitterConfig;
 
 mod creation_date_time;
-pub mod error;
+pub(crate) mod error;
 mod group_header;
 mod identification;
 pub(crate) mod statement;
@@ -28,12 +27,12 @@ pub struct Camt053Message {
 }
 
 impl TransactionProvider for Camt053Message {
-    fn get_transactions(&self) -> HashSet<Transaction> {
-        let mut result = HashSet::new();
+    fn get_transactions(&self) -> Vec<Transaction> {
+        let mut result = Vec::new();
         for statement in &self.statements {
             if let Some(entries) = statement.get_entries() {
                 for entry in entries {
-                    result.insert(entry.to_transaction());
+                    result.push(entry.to_transaction());
                 }
             }
         }

@@ -52,7 +52,7 @@ fn main() {
 }
 
 fn write_to_stdout<T: MessageWriter>(message: &T) {
-    let mut stdout = std::io::stdout();
+    let mut stdout = std::io::stdout().lock();
     message
         .write_to(&mut stdout)
         .expect("Unable to write to stdout");

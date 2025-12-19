@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use thiserror::Error;
 
 const AMOUNT_MAX_LENGTH: usize = 15;
 
@@ -56,28 +56,15 @@ impl Display for Amount {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum AmountParseError {
+    #[error("Amount cannot be empty")]
     Empty,
+    #[error("Amount cannot be longer than {} characters", AMOUNT_MAX_LENGTH)]
     TooLong,
+    #[error("Invalid amount format")]
     InvalidFormat,
 }
-
-impl Display for AmountParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AmountParseError::Empty => write!(f, "Amount cannot be empty"),
-            AmountParseError::TooLong => write!(
-                f,
-                "Amount cannot be longer than {} characters",
-                AMOUNT_MAX_LENGTH
-            ),
-            AmountParseError::InvalidFormat => write!(f, "Invalid amount format"),
-        }
-    }
-}
-
-impl Error for AmountParseError {}
 
 #[cfg(test)]
 mod tests {

@@ -7,10 +7,9 @@ use crate::mt_940_customer_statement_message::balance::credit_debit_mark::*;
 use crate::mt_940_customer_statement_message::balance::currency_code::*;
 use crate::mt_940_customer_statement_message::balance::state::*;
 use crate::mt_940_customer_statement_message::date::*;
-use std::any::Any;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
+use thiserror::Error;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Balance {
@@ -110,69 +109,19 @@ impl Display for Balance {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error, PartialEq)]
 pub(crate) enum BalanceParseError {
+    #[error("Opening balance is empty")]
     Empty,
-    InvalidFormat(Option<Box<dyn Error>>),
+    #[error("Invalid credit/debit mark")]
+    InvalidCreditDebitMark(#[from] CreditDebitMarkParseError),
+    #[error("Invalid currency code")]
+    InvalidCurrencyCode(#[from] CurrencyCodeParseError),
+    #[error("Invalid date")]
+    InvalidDate(#[from] DateParseError),
+    #[error("Invalid amount")]
+    InvalidAmount(#[from] AmountParseError),
 }
-
-impl Display for BalanceParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BalanceParseError::Empty => write!(f, "Opening balance is empty"),
-            BalanceParseError::InvalidFormat(None) => {
-                write!(f, "Opening balance has invalid format")
-            }
-            BalanceParseError::InvalidFormat(Some(err)) => {
-                write!(f, "Opening balance has invalid format: {}", err)
-            }
-        }
-    }
-}
-
-impl From<CreditDebitMarkParseError> for BalanceParseError {
-    fn from(value: CreditDebitMarkParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<CurrencyCodeParseError> for BalanceParseError {
-    fn from(value: CurrencyCodeParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<DateParseError> for BalanceParseError {
-    fn from(value: DateParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl From<AmountParseError> for BalanceParseError {
-    fn from(value: AmountParseError) -> Self {
-        Self::InvalidFormat(Some(Box::new(value)))
-    }
-}
-
-impl PartialEq for BalanceParseError {
-    fn eq(&self, other: &Self) -> bool {
-        match self {
-            BalanceParseError::Empty => matches!(other, BalanceParseError::Empty),
-            BalanceParseError::InvalidFormat(None) => {
-                matches!(other, BalanceParseError::InvalidFormat(None))
-            }
-            BalanceParseError::InvalidFormat(Some(err1)) => {
-                if let BalanceParseError::InvalidFormat(Some(err2)) = other {
-                    (*err1).type_id() == (*err2).type_id()
-                } else {
-                    false
-                }
-            }
-        }
-    }
-}
-
-impl Error for BalanceParseError {}
 
 #[cfg(test)]
 mod tests {

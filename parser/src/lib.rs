@@ -1,3 +1,6 @@
+#![deny(unreachable_pub)]
+#![warn(missing_docs)]
+
 //! Parser and converter for bank statement formats (MT940 and CAMT.053).
 //!
 //! This crate provides:

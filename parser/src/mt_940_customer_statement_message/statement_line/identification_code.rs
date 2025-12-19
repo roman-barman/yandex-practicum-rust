@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 pub(super) const IDENTIFICATION_CODE_LENGTH: usize = 3;
 
@@ -37,24 +37,13 @@ impl Display for IdentificationCode {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub(super) enum IdentificationCodeParseError {
+#[derive(Debug, PartialEq, Error)]
+pub(crate) enum IdentificationCodeParseError {
+    #[error("Identification code cannot be empty")]
     Empty,
+    #[error("Invalid identification code format")]
     InvalidFormat,
 }
-
-impl Display for IdentificationCodeParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            IdentificationCodeParseError::Empty => write!(f, "Identification code cannot be empty"),
-            IdentificationCodeParseError::InvalidFormat => {
-                write!(f, "Invalid identification code format")
-            }
-        }
-    }
-}
-
-impl Error for IdentificationCodeParseError {}
 
 #[cfg(test)]
 mod tests {

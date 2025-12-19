@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::Display;
+use thiserror::Error;
 
 const SUPPLEMENTARY_DETAILS_MAX_LENGTH: usize = 34;
 
@@ -33,27 +33,16 @@ impl Display for SupplementaryDetails {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum SupplementaryDetailsParseError {
+    #[error("Supplementary details cannot be empty")]
     Empty,
+    #[error(
+        "Supplementary details cannot be longer than {} characters",
+        SUPPLEMENTARY_DETAILS_MAX_LENGTH
+    )]
     TooLong,
 }
-impl Display for SupplementaryDetailsParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SupplementaryDetailsParseError::Empty => {
-                write!(f, "Supplementary details cannot be empty")
-            }
-            SupplementaryDetailsParseError::TooLong => write!(
-                f,
-                "Supplementary details cannot be longer than {} characters",
-                SUPPLEMENTARY_DETAILS_MAX_LENGTH
-            ),
-        }
-    }
-}
-
-impl Error for SupplementaryDetailsParseError {}
 
 #[cfg(test)]
 mod tests {

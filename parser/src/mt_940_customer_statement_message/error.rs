@@ -14,6 +14,10 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
+/// Error type returned when reading/parsing a SWIFT MT940 customer statement.
+///
+/// It contains a brief `details` description and may wrap the underlying
+/// parsing or I/O error inside `inner` to retain the original cause.
 pub struct Mt940CustomerStatementMessageReadError {
     details: String,
     inner: Option<Box<dyn Error>>,
@@ -28,9 +32,11 @@ impl Mt940CustomerStatementMessageReadError {
         }
     }
 
-    /// Returns the underlying error cause, if any.
-    pub fn inner(&self) -> Option<&dyn Error> {
-        self.inner.as_deref()
+    pub(super) fn unexpected() -> Self {
+        Self {
+            details: "Unexpected error occurred while parsing MT940 message".to_string(),
+            inner: None,
+        }
     }
 }
 

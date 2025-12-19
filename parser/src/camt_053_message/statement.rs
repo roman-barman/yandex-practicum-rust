@@ -27,6 +27,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Write};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
+/// Representation of a single CAMT.053 bank statement.
+///
+/// This struct mirrors the main parts of an ISO 20022 CAMT.053 statement
+/// (identification, sequence numbers, account, balances and entries) and can
+/// be constructed from an MT940 message for conversion workflows.
 pub struct Statement {
     #[serde(rename = "Id")]
     identification: Identification,

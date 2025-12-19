@@ -18,7 +18,7 @@ impl Display for FromToDate {
 
 #[cfg(test)]
 impl FromToDate {
-    pub fn new(from: NaiveDateTime, to: NaiveDateTime) -> Self {
+    pub(crate) fn new(from: NaiveDateTime, to: NaiveDateTime) -> Self {
         Self { from, to }
     }
 }

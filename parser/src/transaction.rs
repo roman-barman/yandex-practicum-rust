@@ -1,6 +1,5 @@
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
-use std::collections::HashSet;
 use std::fmt::Display;
 
 /// A simple normalized representation of a bank transaction.
@@ -74,10 +73,15 @@ impl Display for Transaction {
     }
 }
 
+/// A type that can provide a collection of normalized `Transaction`s.
+///
+/// Implement this trait for parsed statement structures to expose their
+/// transactions in a unified format consumable by other parts of the
+/// application (e.g. converters or comparers).
 pub trait TransactionProvider {
     /// Collects transactions contained in the type.
     ///
-    /// Returns a set of `Transaction`s. Implementors may perform
+    /// Returns a `Vec` of `Transaction`s. Implementors may perform
     /// normalization or deduplication; therefore the order is not preserved.
-    fn get_transactions(&self) -> HashSet<Transaction>;
+    fn get_transactions(&self) -> Vec<Transaction>;
 }

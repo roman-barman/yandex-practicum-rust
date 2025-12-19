@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 const CURRENCY_CODE_LENGTH: usize = 3;
 
@@ -41,28 +41,13 @@ impl Display for CurrencyCode {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
 pub(crate) enum CurrencyCodeParseError {
+    #[error("Currency code must be {} characters long", CURRENCY_CODE_LENGTH)]
     InvalidLength,
+    #[error("Currency code must be uppercase alphabetic characters")]
     InvalidFormat,
 }
-
-impl Display for CurrencyCodeParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CurrencyCodeParseError::InvalidLength => write!(
-                f,
-                "Currency code must be {} characters long",
-                CURRENCY_CODE_LENGTH
-            ),
-            CurrencyCodeParseError::InvalidFormat => {
-                write!(f, "Currency code must be uppercase alphabetic characters")
-            }
-        }
-    }
-}
-
-impl Error for CurrencyCodeParseError {}
 
 #[cfg(test)]
 mod tests {

@@ -417,6 +417,7 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde-xml-rs",
+ "thiserror",
  "xml",
 ]
 
