@@ -1,4 +1,4 @@
-# Bank statement parser
+# Yandex Practicum Bank Statement Parser
 
 Rust workspace with small tools and a library for working with bank statement formats:
 - MT940 (SWIFT Customer Statement Message)
