@@ -2,16 +2,19 @@
 
 CLI tool to compare transactions between two bank statement files. Inputs may be in the same or different formats.
 
-Supported formats:
+## Supported formats
+
 - `mt940` — SWIFT Customer Statement Message (text)
 - `camt053` — ISO 20022 BankToCustomerStatement (XML)
 
-Build
+## Build
+
 ```
 cargo build -p comparer
 ```
 
-Usage
+## Usage
+
 Show help:
 ```
 cargo run -p comparer -- --help
@@ -26,6 +29,7 @@ cargo run -p comparer -- \
 
 The tool prints symmetric differences; if none found, it reports "No difference found".
 
-See also
+## See also
+
 - Workspace README with more details and examples: `../README.md`
 - Library crate used by this tool: `../parser`
