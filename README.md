@@ -1,23 +1,37 @@
-# Yandex Practicum Bank Statement Parser
+# Bank Statement Parser
 
 Rust workspace with small tools and a library for working with bank statement formats:
 - MT940 (SWIFT Customer Statement Message)
 - CAMT.053 (ISO 20022 BankToCustomerStatement)
 
-The repository contains:
+These are the actual interchange formats used between banks and corporate clients. The library provides typed domain models with parsing and printing for both, plus CLI tools to convert between formats and reconcile transactions across files.
+
+**Highlights:**
+- Hand-written parser for the SWIFT MT940 tag-based text format
+- CAMT.053 XML parsing into shared domain types
+- Format-agnostic transaction comparison (reconciliation across MT940/CAMT.053 in any combination)
+- Library-first design: CLIs are thin wrappers over the reusable `parser` crate
+
+**Stack:** Rust · Clap
+
+## Repository Structure
+
 - parser — reusable library with domain types and readers/writers for MT940 and CAMT.053
 - converter — CLI to convert statements between MT940 and CAMT.053 or pretty‑print them
 - comparer — CLI to compare transactions between two statement files (same or different formats)
 
-Requirements
-- Rust (stable) and Cargo installed. Any recent stable should work.
+## Requirements
 
-Build
+Rust and Cargo installed.
+
+## Build
+
 ```
 cargo build --workspace
 ```
 
-Repository structure
+## Repository structure
+
 - converter/ — CLI tool (uses the `parser` crate)
 - comparer/ — CLI tool (uses the `parser` crate)
 - parser/ — library crate with:
@@ -26,7 +40,8 @@ Repository structure
   - `MessageWriter` trait — stream output helper
 - file_examples/ — sample input files for both formats
 
-Usage — converter
+## Usage — converter
+
 Show help:
 ```
 cargo run -p converter -- --help
@@ -53,7 +68,8 @@ Pretty‑print without changing format (omit `-o` to use Display output):
 cargo run -p converter -- -i file_examples/mt940/mt940.txt -f mt940
 ```
 
-Usage — comparer
+## Usage — comparer
+
 Compare transactions across two files (any combination of formats):
 ```
 cargo run -p comparer -- \
@@ -62,7 +78,8 @@ cargo run -p comparer -- \
 ```
 The tool prints symmetric differences; if none found, it reports "No difference found".
 
-Library usage (parser)
+## Library usage (parser)
+
 Example: read CAMT.053 and print back to stdout via `MessageWriter`:
 ```rust
 use parser::{Camt053Message, MessageWriter};
@@ -78,11 +95,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Run tests
+## Run tests
+
 ```
 cargo test --workspace
 ```
 
-Notes
+## Notes
 - Sample files are located under `file_examples/mt940` and `file_examples/camt053`.
 - All CLIs use Clap, so `--help` shows the available options and formats.
