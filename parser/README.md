@@ -2,7 +2,8 @@
 
 Library crate with domain types and readers/writers for bank statement formats.
 
-Features
+## Features
+
 - `Mt940CustomerStatementMessage` — parse/print MT940 (SWIFT Customer Statement Message)
 - `Camt053Message` — parse/print CAMT.053 (ISO 20022 BankToCustomerStatement)
 - `MessageWriter` trait — stream output helper
@@ -28,11 +29,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-See also
+## See also
+
 - Workspace README with more details and examples: `../README.md`
 - CLI tools using this library: `../converter` and `../comparer`
 
-Examples folder
+## Examples folder
 - You can run ready-to-use examples via Cargo:
   - CAMT.053: `cargo run -p parser --example camt053_read_write`
   - MT940: `cargo run -p parser --example mt940_read_write`
