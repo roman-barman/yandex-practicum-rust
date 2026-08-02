@@ -2,16 +2,19 @@
 
 CLI tool to convert bank statement files between formats and/or pretty‑print them.
 
-Supported formats:
+## Supported formats
+
 - `mt940` — SWIFT Customer Statement Message (text)
 - `camt053` — ISO 20022 BankToCustomerStatement (XML)
 
-Build
+## Build
+
 ```
 cargo build -p converter
 ```
 
-Usage
+## Usage
+
 Show help:
 ```
 cargo run -p converter -- --help
@@ -38,6 +41,7 @@ Pretty‑print without changing format (omit `-o` to use `Display` output):
 cargo run -p converter -- -i ../file_examples/mt940/mt940.txt -f mt940
 ```
 
-See also
+## See also
+
 - Workspace README with more details and examples: `../README.md`
 - Library crate used by this tool: `../parser`
